@@ -1,35 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter as BrowserRouter, Routes, Route} from 'react-router-dom'
+import { CookiesProvider, useCookies } from 'react-cookie'
+
+import EditUser from './assets/EditUser'
+import Home from './assets/Home'
+import Interact from './assets/Interact'
+import Login from './assets/Login'
+import Logout from './assets/Logout'
+import Navig from './assets/Navig'
+import NotFound from './assets/NotFound'
+import Profile from './assets/Profile'
+import Register from './assets/Register'
 import './App.css'
+import 'bootstrap/dist/css/bootstrap.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const url="http://localhost:5173/"
+  const [cookies, setCookie] = useCookies(["user"]);
+
+  function handleLogin(user: string) {
+    setCookie("user", user, { path: "/" });
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <CookiesProvider>
+      <BrowserRouter>
+        <div className="App">
+          <div className="toplb">
+            <Navig user={cookies.user}/>
+          </div>
+          
+          <div className="content">          
+            <Routes>
+              <Route path="/edituser" element={<EditUser user={cookies.user} url={url}/>} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/interact" element={<Interact />} />
+              <Route path="/login" element={<Login onLogin={handleLogin} url={url}/>} />
+              <Route path="/logout" element={<Logout onLogin={handleLogin} />} />
+              <Route path="/register" element={<Register url={url}/>} />
+              <Route path="/profile" element={<Profile user={cookies.user} url={url}/>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </div>
+      </BrowserRouter>
+    </CookiesProvider>
+  );
 }
 
 export default App
