@@ -3,7 +3,7 @@ import { CookiesProvider, useCookies } from 'react-cookie'
 
 import EditUser from './assets/EditUser'
 import Home from './assets/Home'
-import Interact from './assets/Interact'
+import Interact from './assets/Interact/Interact'
 import Login from './assets/Login'
 import Logout from './assets/Logout'
 import Navig from './assets/Navig'
@@ -38,6 +38,7 @@ function App() {
               <Route path="/logout" element={<Logout onLogin={handleLogin} />} />
               <Route path="/register" element={<Register url={url}/>} />
               <Route path="/profile" element={<Profile user={cookies.user} url={url}/>} />
+              <Route path="/" element={<Navigate to="/home" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
