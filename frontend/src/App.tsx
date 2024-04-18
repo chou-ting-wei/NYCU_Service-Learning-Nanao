@@ -1,4 +1,4 @@
-import { BrowserRouter as BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter as BrowserRouter, Routes, Route, Navigate} from 'react-router-dom'
 import { CookiesProvider, useCookies } from 'react-cookie'
 
 import EditUser from './assets/EditUser'
