@@ -91,7 +91,7 @@ const Login = ({ onLogin, url }) => {
       {/* <div className="top"></div>
       <div className="bottom"></div> */}
       <div className="center">
-      <div className="login">
+        <div className="login">
           <h1>Login</h1>
           <br></br>
           <div ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
@@ -125,8 +125,8 @@ const Login = ({ onLogin, url }) => {
               <Link to="/register">Sign Up</Link>
           </p>
           </div>
-      </div></>
-      )}
+        </div></>
+        )}
     </div>
   );
 }
