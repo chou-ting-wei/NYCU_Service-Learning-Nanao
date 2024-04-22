@@ -1,13 +1,24 @@
 import './Interact.css'
-import front from './m_front_1.svg'
-import { Button } from "@/components/ui/button"
+
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover"
+
+// import {useRef} from 'react';
+import FrontSvg from './body/m_front_1.svg';
+
+import FaceComponent from './FaceImages';
 
 const Interact = () => { 
+
+
     return (
       <div className="interact">
         <p>Interact Page Test</p>
-        <Button>Test Button</Button>
-        <img src={front} alt='front' />
+        <img src={FrontSvg} alt="Front" className="front-svg"/>
+        <FaceComponent />
       </div>
     );
   }
