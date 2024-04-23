@@ -1,9 +1,9 @@
 import './Login.css'
 
-const Login = () => { 
+const Login = () => {
   return (
     <div className="login">
-        <p>Login Page Test</p>
+      <p>Login Page Test</p>
     </div>
   );
 }
