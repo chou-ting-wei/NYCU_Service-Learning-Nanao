@@ -1,26 +1,27 @@
 import './Interact.css'
+// import FaceComponent from './FaceImages';
+import Front from './front';
 
 // import {
 //   Popover,
 //   PopoverContent,
 //   PopoverTrigger,
 // } from "@/components/ui/popover"
+  
 
-// import {useRef} from 'react';
-import FrontSvg from './body/m_front_1.svg';
-
-import FaceComponent from './FaceImages';
+import React from 'react';
 
 const Interact = () => { 
+  const [json, setJson] = React.useState({});
 
-
-    return (
+  return (
       <div className="interact">
         <p>Interact Page Test</p>
-        <img src={FrontSvg} alt="Front" className="front-svg"/>
-        <FaceComponent />
+        {/* <img src={FrontSvg} alt="Front" className="front-svg"/> */}
+        <Front json={json} setJson={setJson}/>
+        {/* <FaceComponent /> */}
       </div>
     );
   }
   
-  export default Interact;
+export default Interact;
