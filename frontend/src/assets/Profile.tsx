@@ -11,7 +11,7 @@ const Profile = () => {
           <div><span className="label">生日：</span>1990-01-01</div>
           <div><span className="label">年齡：</span>33</div>
           <div><span className="label">過去病史：</span>無</div>
-          <Link to="/edit-user">修改會員資料</Link>
+          <Link to="/edituser">修改會員資料</Link>
         </div>
     </div>
   );
