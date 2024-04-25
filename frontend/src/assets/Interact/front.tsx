@@ -1,4 +1,4 @@
-// import './front.css'
+import './front.css'
 import { ReactSVG } from 'react-svg';
 import FrontSvg from './body/m_front_1.svg';
 
@@ -8,7 +8,7 @@ interface FrontProps {
 	setJson: React.Dispatch<React.SetStateAction<any>>;
 }
 
-const Front = ({ json, setJson }: FrontProps) => {
+const Front = ({ json }: FrontProps) => {
 	const color: any = {
 		0: 'gray',
 		1: 'pink',
@@ -21,7 +21,7 @@ const Front = ({ json, setJson }: FrontProps) => {
 		8: 'brown',
 	}
 	return (
-		<div>
+		<div className='interact'>
 			<ReactSVG
 				src={FrontSvg}
 				beforeInjection={svg => {
@@ -31,40 +31,25 @@ const Front = ({ json, setJson }: FrontProps) => {
 						}
 					);
 				}}
-			/>
-		</div>
-	);
-
-}
-
-export default Front;
-
-/*
-			<ReactSVG
-				src="/m_front_edit.svg"
-				beforeInjection={svg => {
-					svg.querySelectorAll('path').forEach(path => {
-						path.setAttribute('fill', color[0]);
-						path.setAttribute('style', 'cursor: pointer;')
-
-					});
-				}}
 				afterInjection={svg => {
 					svg.querySelectorAll('path').forEach(path => {
-						props.json[path.id] = 0;
+						json[path.id] = 0;
 						path.addEventListener('click', () => {
-							if (props.json[path.id] === undefined) {
-								props.json[path.id] = 1;
+							if (json[path.id] === undefined) {
+								json[path.id] = 1;
 							} else {
-								props.json[path.id] = color[props.json[path.id] + 1] === undefined ? 0 : props.json[path.id] + 1;
+								json[path.id] = color[json[path.id] + 1] === undefined ? 0 : json[path.id] + 1;
 							}
-							path.setAttribute('fill', color[props.json[path.id]]);
-							console.log(props.json);
+							path.setAttribute('fill', color[json[path.id]]);
+							console.log(json);
 						});
 					}
 					);
 				}}
 				renumerateIRIElements={false}
 			/>
+		</div>
+	);
+}
 
-*/
+export default Front;

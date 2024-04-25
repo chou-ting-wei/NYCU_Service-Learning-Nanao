@@ -15,9 +15,7 @@ const Interact = () => {
   const [json, setJson] = React.useState({});
 
   return (
-      <div className="interact">
-        <p>Interact Page Test</p>
-        {/* <img src={FrontSvg} alt="Front" className="front-svg"/> */}
+      <div>
         <Front json={json} setJson={setJson}/>
         {/* <FaceComponent /> */}
       </div>
