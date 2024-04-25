@@ -5,8 +5,8 @@
 }
 
 svg {
-margin: 100px auto;
-width: 60vh;
-height: 60vh;
-cursor: pointer;
-}  
+    /* margin: 100px auto; */
+    width: 60vh;
+    height: 60vh;
+    cursor: pointer;
+}

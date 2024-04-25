@@ -6,10 +6,8 @@ const Interact = () => {
   const [json, setJson] = React.useState({});
 
   return (
-      <div>
-        <Front json={json} setJson={setJson}/>
-      </div>
-    );
-  }
-  
+    <Front json={json} setJson={setJson}/>
+  );
+}
+
 export default Interact;

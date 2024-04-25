@@ -44,25 +44,23 @@ export default function FaceComponent() {
   }
 
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-row">
+    <div className="flex flex-col justify-between items-center gap-3">
+      <div className="flex flex-row gap-[5px]" onMouseLeave={handleOnMouseLeave}>
         {faceButtons.map((face, faceIndex) => (
           <img
             key={faceIndex}
             src={face}
             alt={`Face ${faceIndex}`}
             onMouseOver={() => handleOnMouseOver(faceIndex)}
-            onMouseLeave={handleOnMouseLeave}
             onClick={() => handleOnClick(faceIndex)}
             className="cursor-pointer size-[30px]"
           />
         ))}
-        
       </div>
       <div>
-        <p>
+        <span>
           {clickedIndex === null ? "請選擇你的疼痛指數" : `你選擇了 ${(clickedIndex)*2}分的疼痛指數!`}
-        </p>
+        </span>
       </div>
     </div>
   )

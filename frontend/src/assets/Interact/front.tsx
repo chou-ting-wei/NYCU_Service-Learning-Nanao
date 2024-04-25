@@ -24,7 +24,7 @@ const Front = ({ json }: FrontProps) => {
 		8: 'brown',
 	}
 	return (
-		<div className='interact'>
+		<div className='interact w-full h-full'>
 			<Popover>
 				<PopoverTrigger>
 					<ReactSVG
@@ -55,7 +55,7 @@ const Front = ({ json }: FrontProps) => {
 						renumerateIRIElements={false}
 					/>
 				</PopoverTrigger>
-				<PopoverContent>
+				<PopoverContent className='flex justify-center items-center w-[300px] h-[150px]' align='center' sideOffset={-450}>
 					<FaceComponent />
 				</PopoverContent>
 			</Popover>
