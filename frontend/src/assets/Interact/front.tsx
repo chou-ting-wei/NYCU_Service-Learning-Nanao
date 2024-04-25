@@ -16,7 +16,11 @@ const Front = ({json, setJson}: FrontProps) => {
 				beforeInjection={svg => {
 					svg.querySelectorAll('path').forEach(path => {
 						path.setAttribute('fill', 'purple');
-						path.onclick = () => {
+						path.onclick = (event) => {
+							// 檢查是否有點擊到
+							console.log(event.target);
+							console.log(path.id);
+							console.log("\n");
 							path.setAttribute('fill', 'red');
 							setJson({ ...json, [path.id]: path.getAttribute('fill') });
 						}
