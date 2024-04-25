@@ -2,6 +2,9 @@ import './front.css'
 import { ReactSVG } from 'react-svg';
 import FrontSvg from './body/m_front_1.svg';
 
+import FaceComponent from './FaceImages';
+
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 interface FrontProps {
 	json: any;
@@ -22,32 +25,40 @@ const Front = ({ json }: FrontProps) => {
 	}
 	return (
 		<div className='interact'>
-			<ReactSVG
-				src={FrontSvg}
-				beforeInjection={svg => {
-					svg.querySelectorAll('path').forEach(path => {
-						path.setAttribute('fill', color[0]);
-						path.setAttribute('style', 'cursor: pointer;');
-						}
-					);
-				}}
-				afterInjection={svg => {
-					svg.querySelectorAll('path').forEach(path => {
-						json[path.id] = 0;
-						path.addEventListener('click', () => {
-							if (json[path.id] === undefined) {
-								json[path.id] = 1;
-							} else {
-								json[path.id] = color[json[path.id] + 1] === undefined ? 0 : json[path.id] + 1;
+			<Popover>
+				<PopoverTrigger>
+					<ReactSVG
+						src={FrontSvg}
+						beforeInjection={svg => {
+							svg.querySelectorAll('path').forEach(path => {
+								path.setAttribute('fill', color[0]);
+								path.setAttribute('style', 'cursor: pointer;');
+								}
+							);
+						}}
+						afterInjection={svg => {
+							svg.querySelectorAll('path').forEach(path => {
+								json[path.id] = 0;
+								path.addEventListener('click', () => {
+									// if (json[path.id] === undefined) {
+									// 	json[path.id] = 1;
+									// } else {
+									// 	json[path.id] = color[json[path.id] + 1] === undefined ? 0 : json[path.id] + 1;
+									// }
+									// path.setAttribute('fill', color[json[path.id]]);
+									path.setAttribute('fill', color[json[path.id]]); // 设置路径颜色
+									console.log(json);
+								});
 							}
-							path.setAttribute('fill', color[json[path.id]]);
-							console.log(json);
-						});
-					}
-					);
-				}}
-				renumerateIRIElements={false}
-			/>
+							);
+						}}
+						renumerateIRIElements={false}
+					/>
+				</PopoverTrigger>
+				<PopoverContent>
+					<FaceComponent />
+				</PopoverContent>
+			</Popover>
 		</div>
 	);
 }
