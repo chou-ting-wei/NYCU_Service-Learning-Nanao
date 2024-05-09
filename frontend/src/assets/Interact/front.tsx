@@ -1,6 +1,6 @@
 import './front.css'
 import { ReactSVG } from 'react-svg';
-import FrontSvg from './body/m_front_1.svg';
+import FrontSvg from './body/m_front_edit.svg';
 
 import FaceComponent from './FaceImages';
 
