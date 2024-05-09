@@ -23,18 +23,18 @@
     margin: 10px auto 20px;
 }
 
-form {
+.edituser form {
     display: grid;
 }
 
-label {
+.edituser label {
     display: block;
     margin-top: 20px;
     margin-bottom: 1px;
     color: #666;
 }
 
-input[type="text"],
+.edituser input[type="text"],
 input[type="password"],
 input[type="email"],
 input[type="tel"],
