@@ -35,13 +35,13 @@
 }
 
 .edituser input[type="text"],
-input[type="password"],
-input[type="email"],
-input[type="tel"],
-input[type="date"],
-input[type="number"],
-input[type="file"],
-select {
+.edituser input[type="password"],
+.edituser input[type="email"],
+.edituser input[type="tel"],
+.edituser input[type="date"],
+.edituser input[type="number"],
+.edituser input[type="file"],
+.edituser select {
     width: 100%;
     padding: 6px;
     border: 1px solid #ccc;
@@ -49,9 +49,9 @@ select {
     box-sizing: border-box;
 }
 
-input[type="submit"] {
+.edituser input[type="submit"] {
     margin-top: 24px;
-    background-color: #4CAF50;
+    background-color: #404040;
     color: white;
     border: none;
     padding: 8px 10px;
@@ -61,5 +61,5 @@ input[type="submit"] {
 }
 
 input[type="submit"]:hover {
-    background-color: #45a049;
+    background-color: #505050;
 }

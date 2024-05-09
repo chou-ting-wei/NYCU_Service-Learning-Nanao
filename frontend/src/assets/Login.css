@@ -63,4 +63,9 @@
     padding: 8px;
     border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login button:hover {
+    background-color: #505050;
 }
