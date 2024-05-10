@@ -21,7 +21,7 @@ const DataFiller = (props: any) => {
     return (
         <>
             <Modal
-                title="Fill the data"
+                title={"Fill the data of " + props.currentPart}
                 open={props.currentPart !== ''}
                 onOk={() => {
                     props.PainLevel[props.currentPart] = value
@@ -33,6 +33,7 @@ const DataFiller = (props: any) => {
 
                 <Form>
                     <Slider onChange={onChangeValue} value={value} max={10} min={0} />
+                    
                     <Form.Item label="Pain Week">
                         <Radio.Group onChange={onChangeWeek} value={Weekvalue}>
                             <Radio value={0}>Yes</Radio>
