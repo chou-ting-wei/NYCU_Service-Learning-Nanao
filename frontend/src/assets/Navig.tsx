@@ -29,7 +29,7 @@ const Navig = (user: string) => {
                 <NavDropdown.Item as={Link} to="/edituser">Edit User</NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/logout">Logout</NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/register">Register</NavDropdown.Item>
-                <NavDropdown.Item as={Link} to="/">Page Not Fouund</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/pnf">Page Not Fouund</NavDropdown.Item>
               </NavDropdown>
               <Nav.Link as={Link} to="/login">Login</Nav.Link>
             </Nav>

@@ -14,7 +14,7 @@ import './App.css'
 import 'bootstrap/dist/css/bootstrap.css'
 
 function App() {
-  const url="http://localhost:5173/"
+  const url="http://localhost:3000/"
   const [cookies, setCookie] = useCookies(["user"]);
 
   function handleLogin(user: string) {

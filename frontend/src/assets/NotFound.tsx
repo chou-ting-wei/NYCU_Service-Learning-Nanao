@@ -3,8 +3,8 @@ import './NotFound.css'
 const NotFound = () => {
   return (
     <div className="notfound">
-      <h2>Sorry</h2>
-      <p>That page cannot be found</p>
+      <h1>Page Not Found</h1>
+      <p>Oops! The page you are looking for does not exist. It might have been moved or deleted.</p>
     </div>
   );
 }
