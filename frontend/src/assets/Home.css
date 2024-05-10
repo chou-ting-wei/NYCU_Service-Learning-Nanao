@@ -1,0 +1,12 @@
+.home h1 {
+    font-size: 50px;
+    color: #333;
+    text-align: center;
+    margin-top: 50px;
+}
+
+.home img {
+    width: 80%;
+    height: auto;
+    /* border-radius: 0%; */
+}
