@@ -1,13 +1,15 @@
 import './Interact.css'
 import React from 'react';
-import Front from './front';
+import BodySelector from './BodySelector';
+import DataFiller from './DataFiller';
 
 const Interact = () => {
-  const [json, setJson] = React.useState({ "json": "json" });
-  console.log(json);
+  const [PainLevel, setPainLevel] = React.useState({});
+  const [currentPart, setCurrentPart] = React.useState('');
   return (
     <div className="interact">
-      <Front json={json} setJson={setJson} />
+      <BodySelector PainLevel={PainLevel} setCurrentPart={setCurrentPart} currentPart={currentPart} />
+      <DataFiller currentPart={currentPart} setCurrentPart={setCurrentPart} PainLevel={PainLevel} setPainLevel={setPainLevel}/>
     </div>
   );
 }
