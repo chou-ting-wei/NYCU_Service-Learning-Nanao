@@ -2,9 +2,9 @@ import './front.css'
 import { ReactSVG } from 'react-svg';
 import FrontSvg from './body/m_front_edit.svg';
 
-import FaceComponent from './FaceImages';
+// import FaceComponent from './FaceImages';
 
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 interface FrontProps {
 	json: any;
@@ -25,40 +25,45 @@ const Front = ({ json }: FrontProps) => {
 	}
 	return (
 		<div className='interact w-full h-full'>
-			<Popover>
-				<PopoverTrigger>
-					<ReactSVG
-						src={FrontSvg}
-						beforeInjection={svg => {
-							svg.querySelectorAll('path').forEach(path => {
-								path.setAttribute('fill', color[0]);
-								path.setAttribute('style', 'cursor: pointer;');
-								}
-							);
-						}}
-						afterInjection={svg => {
-							svg.querySelectorAll('path').forEach(path => {
-								json[path.id] = 0;
-								path.addEventListener('click', () => {
-									// if (json[path.id] === undefined) {
-									// 	json[path.id] = 1;
-									// } else {
-									// 	json[path.id] = color[json[path.id] + 1] === undefined ? 0 : json[path.id] + 1;
-									// }
-									// path.setAttribute('fill', color[json[path.id]]);
-									path.setAttribute('fill', color[json[path.id]]); // 设置路径颜色
-									console.log(json);
-								});
+			<ReactSVG
+				src={FrontSvg}
+				beforeInjection={svg => {
+					svg.querySelectorAll('path').forEach(path => {
+						path.setAttribute('fill', color[0]);
+						path.setAttribute('style', 'cursor: pointer;');
+						}
+					);
+				}}
+				afterInjection={svg => {
+					svg.querySelectorAll('path').forEach(path => {
+						json[path.id] = 0;
+						// 左鍵選擇
+						path.addEventListener('click', () => {
+							if (json[path.id] === undefined) {
+								json[path.id] = 1;
+							} else {
+								json[path.id] = color[json[path.id] + 1] === undefined ? 0 : json[path.id] + 1;
 							}
-							);
-						}}
-						renumerateIRIElements={false}
-					/>
-				</PopoverTrigger>
-				<PopoverContent className='flex justify-center items-center w-[300px] h-[150px]' align='center' sideOffset={-450}>
-					<FaceComponent />
-				</PopoverContent>
-			</Popover>
+							path.setAttribute('fill', color[json[path.id]]);
+							path.setAttribute('fill', color[json[path.id]]); // 设置路径颜色
+							console.log(json);
+						});
+						// 右鍵取消選擇
+						path.addEventListener('contextmenu', (e) => {
+							e.preventDefault();
+							if (json[path.id] === undefined) {
+								json[path.id] = 1;
+							} else {
+								json[path.id] = color[json[path.id] - 1] === undefined ? 0 : json[path.id] - 1;
+							}
+							path.setAttribute('fill', color[json[path.id]]);
+							console.log(json);
+						});
+					}
+					);
+				}}
+				renumerateIRIElements={false}
+			/>
 		</div>
 	);
 }
