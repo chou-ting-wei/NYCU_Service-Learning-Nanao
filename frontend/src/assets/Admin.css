@@ -1,0 +1,25 @@
+.admin {
+    position:relative;
+    width: 80%;
+    margin: 0 auto;
+    padding: 10px;
+    padding-top: 50px;
+    padding-bottom: 40px;
+    border-radius: 10px;
+}
+
+.table .name-column {
+    width: 25%;
+}
+
+.table .username-column {
+    width: 25%;
+}
+
+.table .role-column {
+    width: 20%;
+}
+
+.table .actions-column {
+    width: 30%;
+}

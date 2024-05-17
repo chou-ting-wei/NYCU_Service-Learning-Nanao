@@ -14,7 +14,7 @@ const Profile = () => {
           <div><span className="label">電子郵件：</span>無</div>
           <div><span className="label">地址：</span>無</div>
           <div><span className="label">過去病史：</span>無</div>
-          <Link to="/edituser">修改會員資料</Link>
+          {/* <Link to="/edituser">修改會員資料</Link> */}
         </div>
     </div>
   );

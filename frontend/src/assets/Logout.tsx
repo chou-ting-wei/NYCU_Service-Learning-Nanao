@@ -11,7 +11,7 @@ const Logout = ({ onLogin }) => {
       navigate('/home');
   }, [onLogin, navigate]);
 
-  return <p>Logging out...</p>;
+  return <p>登出中...</p>;
 }
 
 export default Logout;

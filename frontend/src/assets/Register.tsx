@@ -58,9 +58,9 @@ const Register = ({url}) => {
             return;
         }
         let formData = new FormData(); 
-        formData.append('id', user);  
-        formData.append('password', pwd );
-        formData.append('name', name );
+        formData['id'] = user;  
+        formData['password'] = pwd;
+        formData['name'] = name;
         fetch(url+'user-sign-up', {
             method: 'POST',
             headers:{
@@ -86,9 +86,9 @@ const Register = ({url}) => {
         <div className="contain">
             {success ? (
                 <section>
-                    <h1>Success!</h1>
+                    <h1>註冊成功！</h1>
                     <p>
-                        <a href="#">Sign In</a>
+                        <a href="#">登入</a>
                     </p>
                 </section>
             ) : (
@@ -97,7 +97,7 @@ const Register = ({url}) => {
                 <div className="bottom"></div>
                 <div className="center">
                 <div className="register">
-                    <h1>Register</h1>
+                    <h1>註冊</h1>
                     <br></br>
                     <div ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                     <form onSubmit={handleSubmit}>
@@ -181,13 +181,13 @@ const Register = ({url}) => {
                             {/* <FontAwesomeIcon icon={faInfoCircle} /> */}
                             Must match the first password input field.<br></br>
                         </p>
-                        <button>Sign Up</button>
+                        <button>送出</button>
                     </form>
                     <label>
-                        Already registered?<br />
+                        已經註冊過了嗎？<br />
                     </label>
                         <span className='Link'>
-                            <Link to="/login">Sign In</Link>
+                            <Link to="/login">登入</Link>
                         </span>
                 </div>
             </div></>
