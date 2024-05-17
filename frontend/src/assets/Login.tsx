@@ -26,9 +26,9 @@ const Login = ({ onLogin, url }) => {
         }
     }, [])
 
-    useEffect(() => {
-        setErrMsg('');
-    }, [user, pwd])
+    // useEffect(() => {
+    //     setErrMsg('');
+    // }, [user, pwd])
 
     // useEffect(() => {
     //     if (info) {
@@ -48,7 +48,7 @@ const Login = ({ onLogin, url }) => {
         // const formData = {};
         formData['username'] = user;
         formData['password'] = pwd;
-        const fromDataStr = JSON.stringify(formData);
+        const formDataStr = JSON.stringify(formData);
         // console.log(fromDataStr);
 
         setResponse(await fetch(url + 'user/login', {
@@ -57,7 +57,7 @@ const Login = ({ onLogin, url }) => {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: fromDataStr,
+            body: formDataStr,
         }));        
     };
 
@@ -66,7 +66,7 @@ const Login = ({ onLogin, url }) => {
             setErrMsg('用戶不存在');
         }
         if (response.status === 401) {
-            setErrMsg('密碼不正確');
+            setErrMsg('密碼錯誤');
         }
 
         if (response.ok) {
@@ -101,7 +101,6 @@ const Login = ({ onLogin, url }) => {
                         <div className="login">
                             <h1>登入</h1>
                             <br></br>
-                            <div ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                             <form onSubmit={handleSubmit}>
                                 <label htmlFor="username">帳號：</label>
                                 <input
@@ -123,6 +122,7 @@ const Login = ({ onLogin, url }) => {
                                     value={pwd}
                                     required
                                 />
+                                <div ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                                 <button>送出</button>
                             </form>
                             {/* <label>

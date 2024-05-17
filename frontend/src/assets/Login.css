@@ -69,3 +69,12 @@
 .login button:hover {
     background-color: #505050;
 }
+
+.errmsg {
+    color: red;
+    font-size: 16px; /* Example of additional style */
+}
+
+.offscreen {
+    display: none;
+}

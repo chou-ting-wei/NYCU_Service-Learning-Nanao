@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Table, Button, Navbar, Nav, Modal, Form } from 'react-bootstrap';
 import './Admin.css';
-import Password from 'antd/es/input/Password';
 
 
 interface User {
@@ -21,7 +20,7 @@ interface Userdata {
     phone: string;
 }
 
-const UserManagement: React.FC = ({user, url}) => {
+const UserManagement: React.FC = ({role, url}) => {
     const [users, setUsers] = useState<User[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [newUsername, setNewUsername] = useState('');
@@ -45,6 +44,8 @@ const UserManagement: React.FC = ({user, url}) => {
     const [editUseraddr2, setEditUseraddr2] = useState('');
     const [editUsermhis2, setEditUsermhis2] = useState('');
 
+    const [errMsg, setErrMsg] = useState('');
+
     useEffect(() => {
         fetchUsers();
     }, []);
@@ -52,7 +53,8 @@ const UserManagement: React.FC = ({user, url}) => {
     const fetchUsers = async () => {
         try {
             const response = await axios.get(url + 'user');
-            setUsers(response.data);
+            const users = response.data;
+            setUsers(users);
         } catch (error) {
             console.error('Error fetching users:', error);
         }
@@ -64,7 +66,7 @@ const UserManagement: React.FC = ({user, url}) => {
             console.log(response.data);
             return response.data;
         } catch (error) {
-            console.error('Error fetching users:', error);
+            setErrMsg('Error fetching users.');
             return null;
         }
     };
@@ -75,7 +77,7 @@ const UserManagement: React.FC = ({user, url}) => {
             await axios.delete(url + `user/${id}`);
             fetchUsers(); 
         } catch (error) {
-            console.error('Error deleting user:', error);
+            setErrMsg('Error deleting user.');
         }
     };
 
@@ -107,7 +109,7 @@ const UserManagement: React.FC = ({user, url}) => {
             setEditPassword('');
 
         } catch (error) {
-            console.error('Error updating user:', error);
+            setErrMsg('Error updating user.');
         }
     };
 
@@ -169,7 +171,7 @@ const UserManagement: React.FC = ({user, url}) => {
             setEditUsermhis2('');
 
         } catch (error) {
-            console.error('Error updating user:', error);
+            setErrMsg('Error updating user.');
         }
     };
 
@@ -204,7 +206,7 @@ const UserManagement: React.FC = ({user, url}) => {
             setNewPassword('');
             
         } catch (error) {
-            console.error('Error adding user:', error);
+            setErrMsg('Error adding user.');
         }
     };
 
@@ -256,6 +258,7 @@ const UserManagement: React.FC = ({user, url}) => {
                         ))}
                     </tbody>
                 </Table>
+                <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
 
                 <Modal show={showModal} onHide={() => setShowModal(false)}>
                     <Modal.Header closeButton>
@@ -288,6 +291,7 @@ const UserManagement: React.FC = ({user, url}) => {
                                 />
                             </Form.Group>
                         </Form>
+                        <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="primary" onClick={handleAddUser}>
@@ -331,6 +335,7 @@ const UserManagement: React.FC = ({user, url}) => {
                         </Form.Group>
 
                     </Form>
+                    <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                 </Modal.Body>
                 <Modal.Footer className="modal-footer">
                     <Button variant="primary" onClick={() => handleUpdate(editUsername, editUserrole)}>
@@ -423,6 +428,7 @@ const UserManagement: React.FC = ({user, url}) => {
                             />
                         </Form.Group>
                     </Form>
+                    <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                 </Modal.Body>
                 <Modal.Footer className="modal-footer">
                     <Button variant="primary" onClick={() => handleUpdate2(editUsername2)}>
