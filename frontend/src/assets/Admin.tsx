@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Table, Button, Navbar, Nav, Modal, Form } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import './Admin.css';
 
 
@@ -49,6 +50,8 @@ const UserManagement: React.FC = ({role, url}) => {
     useEffect(() => {
         fetchUsers();
     }, []);
+
+    const navigate = useNavigate();
 
     const fetchUsers = async () => {
         try {
@@ -234,6 +237,7 @@ const UserManagement: React.FC = ({role, url}) => {
                             <th>姓名</th>
                             <th>帳號</th>
                             <th>角色</th>
+                            <th>連結</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -243,6 +247,12 @@ const UserManagement: React.FC = ({role, url}) => {
                                 <td className="name-column">{user.name}</td>
                                 <td className="username-column">{user.username}</td>
                                 <td className="role-column">{user.role === "ADMIN" ? "管理員" : "使用者"}</td>
+                                <td className="link-column">
+                                    <Button variant="secondary" onClick={async () => navigate(`/profile?id=${await getUserID(user.username)}`)}>個人資料</Button>
+                                    &nbsp;
+                                    <Button variant="secondary" onClick={async () => navigate(`/stat?id=${await getUserID(user.username)}`)}>疼痛統計</Button>
+                                    &nbsp;
+                                </td>
                                 <td className="actions-column">
                                     <Button variant="secondary" onClick={() => handleEditUser(user)}>編輯帳密</Button>
                                     &nbsp;

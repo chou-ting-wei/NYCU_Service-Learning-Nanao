@@ -9,14 +9,18 @@
 }
 
 .table .name-column {
-    width: 25%;
+    width: 20%;
 }
 
 .table .username-column {
-    width: 25%;
+    width: 20%;
 }
 
 .table .role-column {
+    width: 10%;
+}
+
+.table .link-column {
     width: 20%;
 }
 
