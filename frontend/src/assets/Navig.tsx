@@ -25,7 +25,6 @@ const Navig: React.FC<NavigProps> = ({ user }) => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
             <Nav.Link as={Link} to="/home">首頁</Nav.Link>
-
             {(user == null) ? (
               <Nav.Link as={Link} to="/login">登入</Nav.Link>
             ) : (
@@ -38,7 +37,10 @@ const Navig: React.FC<NavigProps> = ({ user }) => {
                   (user === "admin") ? (
                     <Nav.Link as={Link} to="/admin">管理介面</Nav.Link>
                   ) : (
-                    <Nav.Link as={Link} to="/interact">疼痛回報</Nav.Link>
+                    <>
+                      <Nav.Link as={Link} to="/interact">疼痛回報</Nav.Link>
+                      <Nav.Link as={Link} to="/stat">疼痛統計</Nav.Link>
+                    </>
                   )
                 }
                 <Nav.Link as={Link} to="/profile">{user}</Nav.Link>
