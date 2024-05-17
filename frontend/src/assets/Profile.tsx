@@ -14,7 +14,7 @@ interface UserData {
   age: number;
   medical_History: string;
   address: string;
-  email: string;  
+  email: string;
   phone: string;
 }
 
@@ -22,7 +22,7 @@ const useQuery = () => {
   return new URLSearchParams(useLocation().search);
 };
 
-const Profile = ({ user, url }) => { 
+const Profile = ({ user, url }) => {
   const query = useQuery();
   const id = query.get('id');
   const [users, setUsers] = useState<User | null>(null);
@@ -31,24 +31,19 @@ const Profile = ({ user, url }) => {
   const [errMsg, setErrMsg] = useState('');
 
   const getUserID = async (username: string) => {
-    try {
-      const response = await axios.get(`${url}user/find/${username}`);
-      return response.data.id;
-    } catch (error) {
-      setErrMsg('Error fetching user ID.');
-      return null;
-    }
-  };
+    const response = axios.get(url + `user/find/${username}`);
+    return (await response).data;
+};
 
   useEffect(() => {
     const fetchUserId = async () => {
-      if (!userId) {
+      if (!userId && user) {
         const fetchedId = await getUserID(user);
         if (fetchedId) {
           setUserId(fetchedId);
           fetchUserData(fetchedId);
         }
-      } else {
+      } else if (userId) {
         fetchUserData(userId);
       }
     };
@@ -57,10 +52,11 @@ const Profile = ({ user, url }) => {
 
   const fetchUserData = async (id: string) => {
     try {
-      const response2 = await axios.get(url + 'user/' + id);
-      setUsers(response2.data);
-      const response = await axios.get(`${url}user-detail/${id}`);
-      setUserData(response.data);
+      console.log(id);
+      const response1 = await axios.get(`${url}user/${id}`);
+      setUsers(response1.data);
+      const response2 = await axios.get(`${url}user-detail/${id}`);
+      setUserData(response2.data);
     } catch (error) {
       setErrMsg('Error fetching user data.');
     }
@@ -87,7 +83,7 @@ const Profile = ({ user, url }) => {
     <div className="profile">
       <img src="/public/default_avatar.jpg" alt="Profile Picture" />
       <div className="info">
-        <div><span className="label">姓名：</span>{users?.name}</div>
+        <div><span className="label">姓名：</span>{users?.name || '無'}</div>
         <div><span className="label">性別：</span>{genderMap[displayData.gender] || '無'}</div>
         <div><span className="label">生日：</span>{displayData.birthday || '無'}</div>
         <div><span className="label">年齡：</span>{displayData.age}</div>

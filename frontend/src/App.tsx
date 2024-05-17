@@ -11,6 +11,7 @@ import NotFound from './assets/NotFound'
 import Profile from './assets/Profile'
 import Register from './assets/Register'
 import Admin from './assets/Admin'
+import Stat from './assets/Stat'
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.css'
 
@@ -40,7 +41,7 @@ function App() {
               {/* <Route path="/register" element={<Register url={url}/>} /> */}
               <Route path="/profile" element={<Profile user={cookies.user} url={url}/>} />
               <Route path="/admin" element={<Admin user={cookies.user} url={url}/>} />
-              <Route path="/stat" element={<Admin user={cookies.user} url={url}/>} />
+              <Route path="/stat" element={<Stat user={cookies.user} url={url}/>} />
               <Route path="/" element={<Navigate to="/home" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
