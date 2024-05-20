@@ -81,7 +81,7 @@ const Profile = ({ user, url }) => {
 
   return (
     <div className="profile">
-      <img src="/public/default_avatar.jpg" alt="Profile Picture" />
+      <img src="/default_avatar.jpg" alt="Profile Picture" />
       <div className="info">
         <div><span className="label">姓名：</span>{users?.name || '無'}</div>
         <div><span className="label">性別：</span>{genderMap[displayData.gender] || '無'}</div>
