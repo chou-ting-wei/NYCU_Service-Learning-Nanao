@@ -401,7 +401,7 @@ const UserManagement: React.FC = ({role, url}) => {
                             <Form.Label>年齡</Form.Label>
                             <Form.Control
                                 type="text"
-                                value={editUserage2}
+                                value={editUserage2 <= 0 ? "" : editUserage2}
                                 onChange={(e) => setEditUserage2(Number(e.target.value))}
                             />
                         </Form.Group>
