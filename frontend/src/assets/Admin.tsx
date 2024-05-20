@@ -268,7 +268,7 @@ const UserManagement: React.FC = ({role, url}) => {
                         ))}
                     </tbody>
                 </Table>
-                <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
+                {/* <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div> */}
 
                 <Modal show={showModal} onHide={() => setShowModal(false)}>
                     <Modal.Header closeButton>
@@ -438,7 +438,7 @@ const UserManagement: React.FC = ({role, url}) => {
                             />
                         </Form.Group>
                     </Form>
-                    {/* <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div> */}
+                    <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                 </Modal.Body>
                 <Modal.Footer className="modal-footer">
                     <Button variant="primary" onClick={() => handleUpdate2(editUsername2)}>
