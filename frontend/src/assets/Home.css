@@ -57,6 +57,8 @@
 .login-button {
     position: relative;
     z-index: 2; /* Ensure button is above the overlay */
+    opacity: 0; /* Start from invisible */
+    animation: fadeIn 1s ease-in-out 0.5s forwards;
     background: transparent;
     border: 2px solid white;
     border-radius: 10px;
