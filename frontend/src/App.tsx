@@ -37,7 +37,7 @@ function App() {
               <Route path="/home" element={<Home />} />
               <Route path="/interact" element={<Interact user={cookies.user} />} />
               <Route path="/login" element={<Login onLogin={handleLogin} url={url}/>} />
-              <Route path="/logout" element={<Logout onLogin={handleLogin} />} />
+              <Route path="/logout" element={<Logout onLogin={handleLogin} url={url}/>} />
               {/* <Route path="/register" element={<Register url={url}/>} /> */}
               <Route path="/profile" element={<Profile user={cookies.user} url={url}/>} />
               <Route path="/admin" element={<Admin user={cookies.user} url={url}/>} />
