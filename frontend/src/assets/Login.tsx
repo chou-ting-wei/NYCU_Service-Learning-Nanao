@@ -51,7 +51,7 @@ const Login = ({ onLogin, url }) => {
         const formDataStr = JSON.stringify(formData);
         // console.log(fromDataStr);
 
-        setResponse(await fetch(url + 'user/login', {
+        setResponse(await fetch(url + 'auth/login', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',

@@ -2,14 +2,12 @@ import { BrowserRouter as BrowserRouter, Routes, Route, Navigate} from 'react-ro
 import { CookiesProvider, useCookies } from 'react-cookie'
 
 import EditUser from './assets/EditUser'
-import Home from './assets/Home'
 import Interact from './assets/Interact/Interact'
 import Login from './assets/Login'
 import Logout from './assets/Logout'
 import Navig from './assets/Navig'
 import NotFound from './assets/NotFound'
 import Profile from './assets/Profile'
-import Register from './assets/Register'
 import Admin from './assets/Admin'
 import Stat from './assets/Stat'
 import './App.css'
@@ -33,16 +31,16 @@ function App() {
           
           <div className="content">          
             <Routes>
-              <Route path="/edituser" element={<EditUser user={cookies.user} url={url}/>} />
-              <Route path="/home" element={<Home />} />
+              {/* <Route path="/edituser" element={<EditUser user={cookies.user} url={url}/>} /> */}
+              {/* <Route path="/home" element={<Home />} /> */}
               <Route path="/interact" element={<Interact user={cookies.user} />} />
               <Route path="/login" element={<Login onLogin={handleLogin} url={url}/>} />
-              <Route path="/logout" element={<Logout onLogin={handleLogin} />} />
+              <Route path="/logout" element={<Logout onLogin={handleLogin} url={url} />} />
               {/* <Route path="/register" element={<Register url={url}/>} /> */}
               <Route path="/profile" element={<Profile user={cookies.user} url={url}/>} />
               <Route path="/admin" element={<Admin user={cookies.user} url={url}/>} />
               <Route path="/stat" element={<Stat user={cookies.user} url={url}/>} />
-              <Route path="/" element={<Navigate to="/home" />} />
+              <Route path="/" element={<Navigate to="/login" />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
