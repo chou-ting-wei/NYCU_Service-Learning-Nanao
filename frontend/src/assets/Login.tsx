@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 
-const Login = ({ onLogin, url }) => {
+const Login = ({ url }) => {
     const userRef = useRef(null); // Focus the user input on initial render
     const [user, setUser] = useState(''); // State for username
     const [pwd, setPwd] = useState(''); // State for password
@@ -15,16 +15,15 @@ const Login = ({ onLogin, url }) => {
 
     useEffect(() => {
         // Automatically focus the username input when the component mounts
-        console.log(success)
         userRef.current?.focus();
     }, []);
 
     useEffect(() => {
         if (success) {
-          onLogin(user);  // Handle post-login actions
-          navigate('/home');  // Redirect on success
+            setCookie("user", user, { path: "/" });
+            navigate('/home');  // Redirect on success
         }
-    }, [success, onLogin, user, navigate]); // Run only when `success` changes
+    }, [success, user, navigate]); // Run only when `success` changes
       
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,20 +33,18 @@ const Login = ({ onLogin, url }) => {
                 password: pwd
             }, {
                 headers: {
-                    'Content-Type': 'application/json'
-                }
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: true
             });
     
             if (response.status === 201) {
-                setSuccess(true);  // This will trigger the useEffect above
+                setSuccess(true); 
             } else {
                 throw new Error('Login failed');
             }
         } catch (error) {
-            console.error(error);
-    
             if (error.response) {
-                // Handle errors based on response status code
                 if (error.response.status === 400) {
                     setErrMsg('用戶不存在');
                 } else if (error.response.status === 401) {
@@ -56,11 +53,10 @@ const Login = ({ onLogin, url }) => {
                     setErrMsg('登錄失敗，請稍後再試');
                 }
             } else {
-                // Handle errors without response (e.g., network errors)
                 setErrMsg('網絡錯誤，請檢查您的連接');
             }
     
-            setSuccess(false);  // Explicitly reset on failure if needed
+            setSuccess(false); 
         }
     };
     

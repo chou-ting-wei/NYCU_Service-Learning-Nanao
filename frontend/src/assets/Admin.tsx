@@ -55,7 +55,12 @@ const UserManagement: React.FC = ({role, url}) => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get(url + 'user');
+            const response = await axios.get(url + 'user',{
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            });
             const users = response.data;
             setUsers(users);
         } catch (error) {
@@ -65,7 +70,12 @@ const UserManagement: React.FC = ({role, url}) => {
 
     const fetchUserdata = async (id: number): Promise<Userdata | null> => {
         try {
-            const response = await axios.get(url + `user-detail/${id}`);
+            const response = await axios.get(url + `user-detail/${id}`,{
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            });
             console.log(response.data);
             return response.data;
         } catch (error) {
@@ -77,7 +87,12 @@ const UserManagement: React.FC = ({role, url}) => {
 
     const handleDelete = async (id: number) => {
         try {
-            await axios.delete(url + `user/${id}`);
+            await axios.delete(url + `user/${id}`,{
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            });
             fetchUsers(); 
         } catch (error) {
             setErrMsg('Error deleting user.');
@@ -104,7 +119,8 @@ const UserManagement: React.FC = ({role, url}) => {
             await axios.patch(url + `user/${editUserId}`, updatedUser, {
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                withCredentials: true
             });
             fetchUsers();
             setShowEditModal(false);
@@ -159,7 +175,8 @@ const UserManagement: React.FC = ({role, url}) => {
             await axios.patch(url + `user-detail/${editUserId}`, updatedUser, {
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                withCredentials: true
             });
             fetchUsers();
             setShowEditModal2(false);
@@ -200,7 +217,8 @@ const UserManagement: React.FC = ({role, url}) => {
             await axios.post(url + 'user', newUser, {
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                withCredentials: true
             });
             fetchUsers(); 
             setShowModal(false);
@@ -214,7 +232,12 @@ const UserManagement: React.FC = ({role, url}) => {
     };
 
     const getUserID = async (username: string) => {
-        const response = axios.get(url + `user/find/${username}`);
+        const response = axios.get(url + `user/find/${username}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
         return (await response).data;
     };
 
