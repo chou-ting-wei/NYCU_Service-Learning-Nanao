@@ -7,7 +7,7 @@ const Home = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['user']);
   return (
       <div className="home">
-          <div className="overlay"></div>
+          <div className="overlay">
           <div className="content-wrapper">
               <h1 className="title">疼痛互動系統</h1>
               <br></br>
@@ -33,6 +33,7 @@ const Home = () => {
             </>
           )
           }
+          </div>
           
       </div>
   );
