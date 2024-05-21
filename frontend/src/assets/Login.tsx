@@ -1,138 +1,110 @@
 import './Login.css'
-import { useRef, useState, useEffect } from 'react';
-import { Form, Link, useNavigate } from "react-router-dom";
-
-// Define your interface if you are using TypeScript
-interface LoginResponse {
-    status: string;
-    password: string;
-}
+import React, { useRef, useState, useEffect } from 'react';
+import { Link, useNavigate } from "react-router-dom";
+import { useCookies } from 'react-cookie';
+import axios from 'axios';
 
 const Login = ({ onLogin, url }) => {
-    const userRef = useRef(null);
-    const errRef = useRef(null);
-    const [user, setUser] = useState('');
-    const [pwd, setPwd] = useState('');
-    const [errMsg, setErrMsg] = useState('');
-    const [success, setSuccess] = useState(false);
-    const [info, setInfo] = useState<LoginResponse | null>(null);
-    const [role, setRole] = useState("user");
-    const [response, setResponse] = useState({});
-    const navigate = useNavigate();
+    const userRef = useRef(null); // Focus the user input on initial render
+    const [user, setUser] = useState(''); // State for username
+    const [pwd, setPwd] = useState(''); // State for password
+    const [errMsg, setErrMsg] = useState(''); // State for storing error messages
+    const [success, setSuccess] = useState(false); // State to track login success
+    const [cookies, setCookie, removeCookie] = useCookies(['user']);
+    const navigate = useNavigate(); // Hook for redirecting to other routes
 
     useEffect(() => {
-        if (userRef.current) {
-            userRef.current.focus();
+        // Automatically focus the username input when the component mounts
+        console.log(success)
+        userRef.current?.focus();
+    }, []);
+
+    useEffect(() => {
+        if (success) {
+          onLogin(user);  // Handle post-login actions
+          navigate('/home');  // Redirect on success
         }
-    }, [])
-
-    // useEffect(() => {
-    //     setErrMsg('');
-    // }, [user, pwd])
-
-    // useEffect(() => {
-    //     if (info) {
-    //         if (info.status === "Failed") {
-    //             setErrMsg('Unauthorized');
-    //         } else if (info.password === pwd) {
-    //             setSuccess(true);
-    //         } else {
-    //             setErrMsg('password incorrect');
-    //         }
-    //     }
-    // }, [info])
-
+    }, [success, onLogin, user, navigate]); // Run only when `success` changes
+      
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const formData = new FormData();
-        // const formData = {};
-        formData['username'] = user;
-        formData['password'] = pwd;
-        const formDataStr = JSON.stringify(formData);
-        // console.log(fromDataStr);
-
-        setResponse(await fetch(url + 'auth/login', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: formDataStr,
-        }));        
+        try {
+            const response = await axios.post(url + 'auth/login', {
+                username: user,
+                password: pwd
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            if (response.status === 201) {
+                setSuccess(true);  // This will trigger the useEffect above
+            } else {
+                throw new Error('Login failed');
+            }
+        } catch (error) {
+            console.error(error);
+    
+            if (error.response) {
+                // Handle errors based on response status code
+                if (error.response.status === 400) {
+                    setErrMsg('用戶不存在');
+                } else if (error.response.status === 401) {
+                    setErrMsg('密碼錯誤');
+                } else {
+                    setErrMsg('登錄失敗，請稍後再試');
+                }
+            } else {
+                // Handle errors without response (e.g., network errors)
+                setErrMsg('網絡錯誤，請檢查您的連接');
+            }
+    
+            setSuccess(false);  // Explicitly reset on failure if needed
+        }
     };
-
-    useEffect(() => {
-        if (response.status === 400) {
-            setErrMsg('用戶不存在');
-        }
-        if (response.status === 401) {
-            setErrMsg('密碼錯誤');
-        }
-
-        if (response.ok) {
-            setSuccess(true);
-        }
-
-        if (success) {
-            // console.log(user);
-            onLogin(user);
-            navigate('/home');
-        }
-    }, [success, onLogin, user, role, navigate, response.ok, response.status])
-
+    
 
     return (
         <div className="container">
-            {success && (
+            {cookies.user ? (
+                <div className="logged">
                 <div>
                     <h1>已登入！</h1>
-                    <br />
-                    <p>
-                        <Link to="/home">回到首頁</Link>
-                    </p>
+                    <br></br>
+                    <p><Link to="/home">回到首頁</Link></p>
+                </div></div>
+            ) : (
+                <div className="center">
+                    <div className="login">
+                        <h1>登入</h1>
+                        <br></br>
+                        <form onSubmit={handleSubmit}>
+                            <label htmlFor="username">帳號：</label>
+                            <input
+                                type="text"
+                                id="username"
+                                ref={userRef}
+                                autoComplete="off"
+                                onChange={(e) => setUser(e.target.value)}
+                                value={user}
+                                required
+                            />
+                            <label htmlFor="password">密碼：</label>
+                            <input
+                                type="password"
+                                id="password"
+                                onChange={(e) => setPwd(e.target.value)}
+                                value={pwd}
+                                required
+                            />
+                            <div aria-live="assertive" className={errMsg ? "errmsg" : "offscreen"}>
+                                {errMsg}
+                            </div>
+                            <button type="submit">送出</button>
+                        </form>
+                    </div>
                 </div>
-            )}
-
-            {success === false && (
-                <>
-                    {/* <div className="top"></div>
-      <div className="bottom"></div> */}
-                    <div className="center">
-                        <div className="login">
-                            <h1>登入</h1>
-                            <br></br>
-                            <form onSubmit={handleSubmit}>
-                                <label htmlFor="username">帳號：</label>
-                                <input
-                                    type="text"
-                                    id="username"
-                                    ref={userRef}
-                                    autoComplete="off"
-                                    onChange={(e) => setUser(e.target.value)}
-                                    value={user}
-                                    required
-                                />
-
-                                <label htmlFor="password">密碼：</label>
-
-                                <input
-                                    type="password"
-                                    id="password"
-                                    onChange={(e) => setPwd(e.target.value)}
-                                    value={pwd}
-                                    required
-                                />
-                                <div ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
-                                <button>送出</button>
-                            </form>
-                            {/* <label>
-                                沒有帳號嗎？<br />
-                            </label>
-                            <p>
-                                <Link to="/register">註冊新帳號</Link>
-                            </p> */}
-                        </div>
-                    </div></>
             )}
         </div>
     );

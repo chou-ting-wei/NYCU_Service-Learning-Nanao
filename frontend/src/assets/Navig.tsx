@@ -20,7 +20,7 @@ const Navig: React.FC<NavigProps> = ({ user }) => {
   return (
     <Navbar bg="dark" variant="dark" expand="lg" fixed="top">
       <Container>
-        <Navbar.Brand>南澳資料庫系統</Navbar.Brand>
+        <Navbar.Brand>疼痛互動系統</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
