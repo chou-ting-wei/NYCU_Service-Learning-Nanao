@@ -31,7 +31,12 @@ const Profile = ({ user, url }) => {
   const [errMsg, setErrMsg] = useState('');
 
   const getUserID = async (username: string) => {
-    const response = axios.get(url + `user/find/${username}`);
+    const response = axios.get(url + `user/find/${username}`,{
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      withCredentials: true
+  });
     return (await response).data;
 };
 
@@ -52,10 +57,19 @@ const Profile = ({ user, url }) => {
 
   const fetchUserData = async (id: string) => {
     try {
-      console.log(id);
-      const response1 = await axios.get(`${url}user/${id}`);
+      const response1 = await axios.get(`${url}user/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true
+    });
       setUsers(response1.data);
-      const response2 = await axios.get(`${url}user-detail/${id}`);
+      const response2 = await axios.get(`${url}user-detail/${id}`, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true
+    });
       setUserData(response2.data);
     } catch (error) {
       setErrMsg('Error fetching user data.');
