@@ -15,11 +15,11 @@ const DataFiller = (props: any) => {
     const onChangeValue = (value: number) => {
         setValue(value);
     }
-    
+
     return (
         <>
             <Modal
-                title={"Fill the data of " + props.currentPart}
+                title="填寫疼痛資料"
                 open={props.currentPart !== ''}
                 onOk={() => {
                     props.MonthPain[props.currentPart] = Monthvalue
@@ -33,20 +33,21 @@ const DataFiller = (props: any) => {
             >
 
                 <Form>
+                    <label>過去一年有無疼痛？</label>
                     <Slider onChange={onChangeValue} value={value} max={10} min={0} />
-                    
-                    <Form.Item label="Pain Week">
-                        <Radio.Group onChange={onChangeWeek} value={Weekvalue}>
-                            <Radio value={1}>Yes</Radio>
-                            <Radio value={0}>No</Radio>
-                        </Radio.Group>
-                    </Form.Item>
-                    <Form.Item label="Pain Month">
+                    <Form.Item label="此部位過去一年此部位的疼痛是否影響正常生活？">
                         <Radio.Group onChange={onChangeMonth} value={Monthvalue}>
-                            <Radio value={1}>Yes</Radio>
-                            <Radio value={0}>No</Radio>
+                            <Radio value={true}>Yes</Radio>
+                            <Radio value={false}>No</Radio>
                         </Radio.Group>
                     </Form.Item>
+                    <Form.Item label="過去一星期中，此部位是否還疼痛？">
+                        <Radio.Group onChange={onChangeWeek} value={Weekvalue}>
+                            <Radio value={true}>Yes</Radio>
+                            <Radio value={false}>No</Radio>
+                        </Radio.Group>
+                    </Form.Item>
+
                 </Form>
             </Modal>
         </>

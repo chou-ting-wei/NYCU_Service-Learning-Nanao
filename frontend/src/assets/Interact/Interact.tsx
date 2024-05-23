@@ -6,7 +6,7 @@ import { Button } from 'antd';
 import { Cookies, useCookies } from 'react-cookie';
 import axios from 'axios';
 import { json } from 'react-router';
-
+import withAuthRedirect from '../withAuthRedirect';
 const url = 'http://localhost:3000/';
 
 const getUserID = async (username: string) => {
@@ -31,7 +31,7 @@ const Interact = () => {
       <div className='row d-flex align-items-center justify-content-center'>
         <BodySelector PainLevel={PainLevel} setCurrentPart={setCurrentPart} currentPart={currentPart} MonthPain={MonthPain} WeekPain={WeekPain} />
       </div>
-      <div className='row d-flex align-items-center justify-content-center'>
+      <div className='row '>
         <div className='col'>
           <DataFiller currentPart={currentPart} setCurrentPart={setCurrentPart} PainLevel={PainLevel} setPainLevel={setPainLevel} MonthPain={MonthPain} WeekPain={WeekPain} />
         </div>
@@ -44,12 +44,23 @@ const Interact = () => {
               },
               withCredentials: true
             });
-            
-          }}>Submit</Button>
+            const response2 = axios.post(url + 'weekform/' + userid, WeekPain, {
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              withCredentials: true
+            });
+            const response3 = axios.post(url + 'yearform/' + userid, MonthPain, {
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              withCredentials: true
+            });
+          }}>送出</Button>
         </div>
       </div>
     </div>
   );
 }
 
-export default Interact;
+export default withAuthRedirect(Interact);

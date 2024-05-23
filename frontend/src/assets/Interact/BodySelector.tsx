@@ -13,10 +13,10 @@ const SideSelector = (props: any) => {
         return (
                 <div id='SideSelector'>
                         <Radio.Group defaultValue="/m_front.svg" onChange={handleChange}>
-                                <Radio.Button value="/m_front.svg">Front</Radio.Button>
-                                <Radio.Button value="/m_back.svg">Back</Radio.Button>
-                                <Radio.Button value="/m_left.svg">Left</Radio.Button>
-                                <Radio.Button value="/m_right.svg">Right</Radio.Button>
+                                <Radio.Button value="/m_front.svg">前</Radio.Button>
+                                <Radio.Button value="/m_back.svg">後</Radio.Button>
+                                <Radio.Button value="/m_left.svg">左</Radio.Button>
+                                <Radio.Button value="/m_right.svg">右</Radio.Button>
                         </Radio.Group>
                 </div>
         )
@@ -45,8 +45,8 @@ const BodySelector = (props: any) => {
                                                         path.setAttribute("id", path.getAttribute('inkscape:label') ?? '');
                                                         if (props.PainLevel[path.id] === undefined && props.MonthPain[path.id] === undefined && props.WeekPain[path.id] === undefined) {
                                                                 props.PainLevel[path.id] = 0;
-                                                                props.MonthPain[path.id] = 0;
-                                                                props.WeekPain[path.id] = 0;
+                                                                props.MonthPain[path.id] = false;
+                                                                props.WeekPain[path.id] = false;
                                                         }
                                                         path.setAttribute('fill', color[(~~(props.PainLevel[path.id] / 2))]);
                                                         path.addEventListener('click', () => {

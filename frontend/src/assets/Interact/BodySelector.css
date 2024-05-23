@@ -5,3 +5,13 @@
   height: 60vh;
   cursor: pointer;
 }
+
+.BodySelector svg path {
+    transition: filter 0.3s ease-in-out;  /* Smooth transition for the glow effect */
+}
+
+.BodySelector svg path:hover {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.75))  /* White glow */
+            drop-shadow(0 0 10px rgba(255, 255, 255, 0.75))  /* Stronger white glow */
+            drop-shadow(0 0 20px rgba(255, 217, 0, 0.884));  /* Cyan glow for extra effect */
+}
