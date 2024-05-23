@@ -8,91 +8,8 @@ import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import 'chart.js/auto';
 import moment from 'moment';
-
-
-interface Userhurt {
-    id: string,
-    user_id: string,
-    fill_time: string,
-    neck: number,
-    right_upper_arm: number,
-    right_shoulder: number,
-    right_lower_arm: number,
-    right_hand: number,
-    left_upper_arm: number,
-    left_shoulder: number,
-    left_lower_arm: number,
-    left_lower_leg: number,
-    left_hand: number,
-    left_upper_leg: number,
-    left_ankle: number,
-    left_feet: number,
-    left_knee: number,
-    right_lower_leg: number,
-    right_ankle: number,
-    right_upper_leg: number,
-    right_feet: number,
-    right_knee: number,
-    abdomen: number,
-    lower_body: number,
-    upper_body: number,
-    right_ear: number,
-    left_ear: number,
-    head: number,
-    right_eye: number,
-    mouth: number,
-    left_eye: number,
-    nose: number,
-    back_head: number,
-    back_neck: number,
-    left_elbow: number,
-    right_elbow: number,
-    lower_back: number,
-    back: number,
-    butt: number,
-    right_upper_shoulder: number
-}
-
-const bodyParts = [
-    { label: "所有部位", value: "default" },
-    { label: "頸部", value: "neck" },
-    { label: "右上臂", value: "right_upper_arm" },
-    { label: "右肩", value: "right_shoulder" },
-    { label: "右下臂", value: "right_lower_arm" },
-    { label: "右手", value: "right_hand" },
-    { label: "左上臂", value: "left_upper_arm" },
-    { label: "左肩", value: "left_shoulder" },
-    { label: "左下臂", value: "left_lower_arm" },
-    { label: "左小腿", value: "left_lower_leg" },
-    { label: "左手", value: "left_hand" },
-    { label: "左大腿", value: "left_upper_leg" },
-    { label: "左腳踝", value: "left_ankle" },
-    { label: "左腳", value: "left_feet" },
-    { label: "左膝蓋", value: "left_knee" },
-    { label: "右小腿", value: "right_lower_leg" },
-    { label: "右腳踝", value: "right_ankle" },
-    { label: "右大腿", value: "right_upper_leg" },
-    { label: "右腳", value: "right_feet" },
-    { label: "右膝蓋", value: "right_knee" },
-    { label: "腹部", value: "abdomen" },
-    { label: "下半身", value: "lower_body" },
-    { label: "上半身", value: "upper_body" },
-    { label: "右耳", value: "right_ear" },
-    { label: "左耳", value: "left_ear" },
-    { label: "頭部", value: "head" },
-    { label: "右眼", value: "right_eye" },
-    { label: "嘴巴", value: "mouth" },
-    { label: "左眼", value: "left_eye" },
-    { label: "鼻子", value: "nose" },
-    { label: "後腦", value: "back_head" },
-    { label: "後頸", value: "back_neck" },
-    { label: "左肘", value: "left_elbow" },
-    { label: "右肘", value: "right_elbow" },
-    { label: "下背部", value: "lower_back" },
-    { label: "背部", value: "back" },
-    { label: "臀部", value: "butt" },
-    { label: "右上肩", value: "right_upper_shoulder" }
-];
+import { Userhurt, Usertime } from './ts/types';
+import { bodyParts } from './ts/constants';
 
 const useQuery = () => {
     return new URLSearchParams(useLocation().search);
@@ -106,6 +23,8 @@ const Stat = ({ url }) => {
     const id = query.get('id');
     const [userId, setUserId] = useState<string | null>(id || null);
     const [userhurt, setUserhurt] = useState<Userhurt[]>([]);
+    const [userweek, setUserweek] = useState<Usertime[]>([]);
+    const [useryear, setUseryear] = useState<Usertime[]>([]);
 
     const [selectedBodyPart, setSelectedBodyPart] = useState("default");
     const [searchTerm, setSearchTerm] = useState('');
@@ -143,10 +62,14 @@ const Stat = ({ url }) => {
                 const fetchedId = await getUserID(user);
                 if (fetchedId) {
                     setUserId(fetchedId);
-                    fetchUserhurt(fetchedId);
+                    await fetchUserhurt(fetchedId);
+                    await fetchUserweek(fetchedId);
+                    await fetchUseryear(fetchedId);
                 }
             } else if (userId) {
-                fetchUserhurt(userId);
+                await fetchUserhurt(userId);
+                await fetchUserweek(userId);
+                await fetchUseryear(userId);
             }
         };
         fetchUserId();
@@ -157,33 +80,85 @@ const Stat = ({ url }) => {
         setFilteredBodyParts(filteredParts);
     }, [searchTerm]);
     
+
     useEffect(() => {
+        if (selectedBodyPart && selectedBodyPart !== 'default') {
+            setChartType('line');
+        }
+        else {  
+            setChartType('bar');
+        }
+        
         const painData = calculatePainAverage(userhurt, selectedBodyPart);
-        const newChartData = {
+        const individualPainData = calculatePainData(userhurt);
+    
+        const barChartData = {
             labels: painData.map(item => item.name),
             datasets: [
                 {
-                    label: '疼痛指數',
+                    label: '疼痛指數平均',
                     data: painData.map(item => item.pain),
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    fill: selectedBodyPart === 'default'
+                    borderWidth: 1
                 }
             ]
         };
-        setChartData(newChartData);
-        setChartType(selectedBodyPart !== 'default' ? 'line' : 'bar');
-    }, [userhurt, selectedBodyPart]);
+    
+        const lineChartData = {
+            labels: individualPainData.map(item => moment(item.name).format('YYYY-MM-DD HH:mm')),
+            datasets: [
+                {
+                    label: '疼痛指數',
+                    data: individualPainData.map(item => item.pain),
+                    fill: false,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    pointBackgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    pointBorderColor: 'rgba(75, 192, 192, 1)'
+                },
+                {
+                    label: '一週內是否疼痛',
+                    data: userweek.map(item => item[selectedBodyPart] ? 1 : 0),
+                    fill: false,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    pointBackgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    pointBorderColor: 'rgba(255, 99, 132, 1)'
+                },
+                {
+                    label: '一年內是否疼痛',
+                    data: useryear.map(item => item[selectedBodyPart] ? 1 : 0),
+                    fill: false,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    pointBackgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    pointBorderColor: 'rgba(54, 162, 235, 1)'
+                }
+            ]
+        };
+    
+        setChartData(chartType === 'bar' ? barChartData : lineChartData);
+    }, [userhurt, searchTerm, selectedBodyPart, chartType, userweek, useryear]);      
 
+    const calculatePainData = (data) => {
+        return data.map(item => ({
+            name: item.fill_time,
+            pain: item[selectedBodyPart]
+        })).sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime());
+    };
+    
     const calculatePainAverage = (data, selectedPart) => {
         if (selectedPart && selectedPart !== 'default') {
-            return data
-                .map(item => ({
-                    name: moment(item.fill_time).format('YYYY-MM-DD HH:mm'),
-                    pain: item[selectedPart]
-                }))
-                .sort((a, b) => new Date(a.name) - new Date(b.name));
+            const totalPain = data.reduce((acc, curr) => acc + curr[selectedPart], 0);
+            const averagePain = totalPain / data.length;
+            return [{
+                name: bodyParts.find(bp => bp.value === selectedPart).label,
+                pain: averagePain
+            }];
         } else {
             const partKeys = bodyParts.filter(part => part.value !== 'default').map(part => part.value);
             const averages = partKeys.map(part => {
@@ -197,7 +172,7 @@ const Stat = ({ url }) => {
             return averages;
         }
     };
-    
+ 
     const fetchUserhurt = async (id: string) => {
         try {
             const params: any = {};
@@ -215,8 +190,6 @@ const Stat = ({ url }) => {
             });
             const data = response.data;
     
-            // console.log(data);
-    
             if (Array.isArray(data)) {
                 setUserhurt(data);
             } else if (Array.isArray(data.data)) {
@@ -231,12 +204,65 @@ const Stat = ({ url }) => {
     }
 
     const fetchUserweek = async (id: string) => {
-
+        try {
+            const params: any = {};
+            if (searchDatefrom) {
+                params.start = moment(searchDatefrom).toISOString();
+            }
+            if (searchDateto) {
+                params.end = moment(searchDateto).toISOString();
+            }
+    
+            const response = await axios.get(`${url}weekform/${id}`, {
+                params,
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true
+            });
+            const data = response.data;
+    
+            if (Array.isArray(data)) {
+                setUserweek(data);
+            } else if (Array.isArray(data.data)) {
+                setUserweek(data.data);
+            } else {
+                setUserweek([]);
+            }
+        } catch (error) {
+            console.error("Error fetching user week data:", error);
+            setUserweek([]);
+        }
     }
-
+    
     const fetchUseryear = async (id: string) => {
-
+        try {
+            const params: any = {};
+            if (searchDatefrom) {
+                params.start = moment(searchDatefrom).toISOString();
+            }
+            if (searchDateto) {
+                params.end = moment(searchDateto).toISOString();
+            }
+    
+            const response = await axios.get(`${url}yearform/${id}`, {
+                params,
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true
+            });
+            const data = response.data;
+    
+            if (Array.isArray(data)) {
+                setUseryear(data);
+            } else if (Array.isArray(data.data)) {
+                setUseryear(data.data);
+            } else {
+                setUseryear([]);
+            }
+        } catch (error) {
+            console.error("Error fetching user year data:", error);
+            setUseryear([]);
+        }
     }
+    
 
     const handleDelete = async () => {
         // TODO
@@ -246,6 +272,8 @@ const Stat = ({ url }) => {
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         fetchUserhurt(userId);
+        fetchUserweek(userId);
+        fetchUseryear(userId);
     };  
 
     return (
@@ -296,39 +324,18 @@ const Stat = ({ url }) => {
                 </Navbar>
 
                 <div className="chart-container mt-4">
-                    {chartType === 'bar' ? (
-                        <Bar 
-                            data={chartData} 
-                            options={{ 
-                                scales: { 
-                                    x: { 
-                                        type: 'category', 
-                                        ticks: { maxRotation: 90, minRotation: 0 } 
-                                    }, 
-                                    y: { 
-                                        beginAtZero: true 
-                                    } 
-                                } 
-                            }} 
-                        />
-                    ) : (
-                        <Line 
-                            data={chartData} 
-                            options={{ 
-                                scales: { 
-                                    x: { 
-                                        type: 'category', 
-                                        ticks: { maxRotation: 90, minRotation: 0 } 
-                                    }, 
-                                    y: { 
-                                        beginAtZero: true 
-                                    } 
-                                } 
-                            }} 
-                        />
+                    {chartData && (
+                        chartType === 'bar' ? (
+                            <Bar data={chartData} />
+                        ) : (
+                            <Line data={chartData} options={{ scales: { y: { beginAtZero: true }}}} />
+                        )
                     )}
                 </div>
 
+                {/* <Button variant="outline-primary" onClick={() => setChartType(chartType === 'bar' ? 'line' : 'bar')}>
+                    切換至{chartType === 'bar' ? '折線圖' : '長條圖'}
+                </Button> */}
 
                 <Table striped bordered hover className="mt-4">
                     <thead>
