@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { Container, Table, Button, Navbar, Form, FormControl, Dropdown, DropdownButton } from 'react-bootstrap';
 import { Bar, Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js'; 
 import 'chart.js/auto';
 import moment from 'moment';
 import { Userhurt, Usertime } from './ts/types';
@@ -114,32 +114,39 @@ const Stat = ({ url }) => {
                     fill: false,
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
+                    borderWidth: 2,
                     pointBackgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    pointBorderColor: 'rgba(75, 192, 192, 1)'
+                    pointBorderColor: 'rgba(75, 192, 192, 1)',
+                    yAxisID: 'y1',
+                    order: 1
                 },
                 {
                     label: '一週內是否疼痛',
+                    type: 'bar',
                     data: userweek.map(item => item[selectedBodyPart] ? 1 : 0),
-                    fill: false,
                     backgroundColor: 'rgba(255, 99, 132, 0.6)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1,
-                    pointBackgroundColor: 'rgba(255, 99, 132, 0.6)',
-                    pointBorderColor: 'rgba(255, 99, 132, 1)'
+                    yAxisID: 'y2',
+                    maxBarThickness: 20,
+                    barPercentage: 0.5,
+                    order: 2
                 },
                 {
                     label: '一年內是否疼痛',
+                    type: 'bar',
                     data: useryear.map(item => item[selectedBodyPart] ? 1 : 0),
-                    fill: false,
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1,
-                    pointBackgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    pointBorderColor: 'rgba(54, 162, 235, 1)'
+                    yAxisID: 'y2',
+                    maxBarThickness: 20,
+                    barPercentage: 0.5,
+                    order: 3
                 }
             ]
         };
+        
     
         setChartData(chartType === 'bar' ? barChartData : lineChartData);
     }, [userhurt, searchTerm, selectedBodyPart, chartType, userweek, useryear]);      
@@ -328,20 +335,36 @@ const Stat = ({ url }) => {
                         chartType === 'bar' ? (
                             <Bar data={chartData} />
                         ) : (
-                            <Line data={chartData} options={{ scales: { y: { beginAtZero: true }}}} />
+                            <Line 
+                                data={chartData} 
+                                options={{
+                                    scales: {
+                                        y1: {
+                                            type: 'linear',
+                                            position: 'left',
+                                            beginAtZero: true,
+                                            max: 10
+                                        },
+                                        y2: {
+                                            type: 'linear',
+                                            position: 'right',
+                                            beginAtZero: true,
+                                            max: 2,
+                                            grid: {
+                                                drawOnChartArea: false // 防止网格线绘制在图表区域上
+                                            }
+                                        }
+                                    }
+                                }} 
+                            />
+
                         )
                     )}
                 </div>
 
-                {/* <Button variant="outline-primary" onClick={() => setChartType(chartType === 'bar' ? 'line' : 'bar')}>
-                    切換至{chartType === 'bar' ? '折線圖' : '長條圖'}
-                </Button> */}
-
-                <Table striped bordered hover className="mt-4">
+                {/* <Table striped bordered hover className="mt-4">
                     <thead>
                         <tr>
-                            <th className="stat-week-column">一週內是否疼痛</th>
-                            <th className="stat-year-column">一年內是否疼痛</th>
                             <th className="stat-time-column">填表時間</th>
                             <th className="stat-actions-column">操作</th>
                         </tr>
@@ -349,8 +372,6 @@ const Stat = ({ url }) => {
                     <tbody>
                         {userhurt.map(uh => (
                             <tr key={uh.id}>
-                                <td className="stat-week-column">{/* Implement logic to display weekly pain */}</td>
-                                <td className="stat-year-column">{/* Implement logic to display yearly pain */}</td>
                                 <td className="stat-time-column">{uh.fill_time}</td>
                                 <td className="stat-actions-column">
                                     {user === 'admin' && (
@@ -360,7 +381,7 @@ const Stat = ({ url }) => {
                             </tr>
                         ))}
                     </tbody>
-                </Table>
+                </Table> */}
             </Container>
         </div>
     );
