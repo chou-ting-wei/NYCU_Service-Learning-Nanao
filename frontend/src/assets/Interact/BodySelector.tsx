@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './BodySelector.css';
 import { ReactSVG } from 'react-svg';
+import { Radio } from 'antd';
+
+
+
 
 const SideSelector = (props: any) => {
+        const handleChange = (e: any) => {
+                props.control(e.target.value);
+        }
         return (
                 <div id='SideSelector'>
-                        <button onClick={props.control.bind(null, '/m_front.svg')} className='button-54'>Front</button>
-                        <button onClick={props.control.bind(null, '/m_back.svg')} className='button-54'>Back</button>
-                        <button onClick={props.control.bind(null, '/m_left.svg')} className='button-54'>Left</button>
-                        <button onClick={props.control.bind(null, '/m_right.svg')} className='button-54'>Right</button>
+                        <Radio.Group defaultValue="/m_front.svg" onChange={handleChange}>
+                                <Radio.Button value="/m_front.svg">Front</Radio.Button>
+                                <Radio.Button value="/m_back.svg">Back</Radio.Button>
+                                <Radio.Button value="/m_left.svg">Left</Radio.Button>
+                                <Radio.Button value="/m_right.svg">Right</Radio.Button>
+                        </Radio.Group>
                 </div>
         )
 }
@@ -19,7 +28,6 @@ const BodySelector = (props: any) => {
         const color = ['white', 'green', 'yellow', 'orange', 'red', 'black'];
         return (
                 <div className='BodySelector'>
-
                         <div id="bodyPart">
                                 <ReactSVG
                                         id="bodySvg"
@@ -35,22 +43,23 @@ const BodySelector = (props: any) => {
                                         afterInjection={svg => {
                                                 svg.querySelectorAll('path').forEach(path => {
                                                         path.setAttribute("id", path.getAttribute('inkscape:label') ?? '');
-                                                        if (props.PainLevel[path.id] === undefined&&props.MonthPain[path.id] === undefined&&props.WeekPain[path.id] === undefined) {
+                                                        if (props.PainLevel[path.id] === undefined && props.MonthPain[path.id] === undefined && props.WeekPain[path.id] === undefined) {
                                                                 props.PainLevel[path.id] = 0;
                                                                 props.MonthPain[path.id] = 0;
                                                                 props.WeekPain[path.id] = 0;
                                                         }
-                                                        path.setAttribute('fill', color[(~~(props.PainLevel[path.id]/2))]);
+                                                        path.setAttribute('fill', color[(~~(props.PainLevel[path.id] / 2))]);
                                                         path.addEventListener('click', () => {
-                                                                path.setAttribute('fill', color[~~(props.PainLevel[path.id]/2)]);
+                                                                path.setAttribute('fill', color[~~(props.PainLevel[path.id] / 2)]);
                                                                 props.setCurrentPart(path.id);
                                                         });
                                                 }
                                                 );
-                                        }}
+                                        }
+                                        }
                                         renumerateIRIElements={false}
                                 />
-                                <SideSelector control={setSvgSrc} />
+                                <SideSelector control={setSvgSrc}/>
                         </div>
                 </div>
         );
