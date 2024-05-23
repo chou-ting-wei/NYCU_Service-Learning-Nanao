@@ -349,7 +349,7 @@ const Stat = ({ url }) => {
                                             type: 'linear',
                                             position: 'right',
                                             beginAtZero: true,
-                                            max: 2,
+                                            max: 4,
                                             grid: {
                                                 drawOnChartArea: false // 防止网格线绘制在图表区域上
                                             }
