@@ -272,7 +272,6 @@ const Stat = ({ url }) => {
         }
     }
     
-
     const handleDelete = async () => {
         // TODO
         console.log("Delete userhurt");
@@ -285,13 +284,67 @@ const Stat = ({ url }) => {
         fetchUseryear(userId);
     };  
 
+    // const renderDropdownItems = (parts, setSelectedBodyPart) => {
+    //     const categories = Array.from(new Set(parts.map(part => part.category)));
+    //     return (
+    //         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+    //             {categories.map(category => (
+    //                 <Dropdown key={category} className="mt-2">
+    //                     <Dropdown.Toggle variant="outline-secondary" id={`dropdown-basic-${category}`}>
+    //                         {category}
+    //                     </Dropdown.Toggle>
+    //                     <Dropdown.Menu>
+    //                         {parts.filter(part => part.category === category).map(part => (
+    //                             <Dropdown.Item 
+    //                                 key={part.value} 
+    //                                 onClick={() => setSelectedBodyPart(part.value)}
+    //                             >
+    //                                 {part.label}
+    //                             </Dropdown.Item>
+    //                         ))}
+    //                     </Dropdown.Menu>
+    //                 </Dropdown>
+    //             ))}
+    //         </div>
+    //     );
+    // };
+
+    const renderDropdownItems = (parts, setSelectedBodyPart) => {
+        const categories = Array.from(new Set(parts.map(part => part.category)));
+        return (
+            <div className="container-fluid">
+                <div className="d-flex flex-row flex-nowrap">
+                    {categories.map(category => (
+                        <div className="p-2" key={category}>
+                            <Dropdown>
+                                <Dropdown.Toggle variant="outline-secondary" id={`dropdown-basic-${category}`}>
+                                    {category}
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu>
+                                    {parts.filter(part => part.category === category).map(part => (
+                                        <Dropdown.Item 
+                                            key={part.value} 
+                                            onClick={() => setSelectedBodyPart(part.value)}
+                                        >
+                                            {part.label}
+                                        </Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
     return (
         <div className="stat">
             <Container>
                 <h1>疼痛統計</h1>
                 <Navbar expand="lg" className="justify-content-between mt-4">
                     <Form inline="true" onSubmit={handleSearch} className="d-flex w-100 align-items-center" style={{ whiteSpace: 'nowrap' }}>
-                        <FormControl
+                        {/* <FormControl
                             type="text"
                             placeholder="搜尋部位"
                             className="me-3"
@@ -312,7 +365,18 @@ const Stat = ({ url }) => {
                                     {part.label}
                                 </Dropdown.Item>
                             ))}
-                        </DropdownButton>
+                        </DropdownButton> */}
+
+                        <div className="d-flex flex-wrap">
+                            <Dropdown>
+                                <Dropdown.Toggle variant="outline-secondary" id="dropdown-basic" className="me-5">
+                                    {bodyParts.find(part => part.value === selectedBodyPart)?.label || "選擇部位"}
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu>
+                                    {renderDropdownItems(filteredBodyParts, setSelectedBodyPart)}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </div>
 
                         <div className="text-center me-3" style={{ width: '120px' }}>搜尋時間</div>
                         <FormControl
