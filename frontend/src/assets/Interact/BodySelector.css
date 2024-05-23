@@ -1,4 +1,14 @@
 
+.BodySelector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#SideSelector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .BodySelector svg{
   margin: 100px auto;
   width: 60vh;

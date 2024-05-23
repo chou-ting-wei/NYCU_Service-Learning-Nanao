@@ -62,7 +62,6 @@ const Interact = () => {
 
   return (
     <div className="container">
-      <div className="row d-flex align-items-center justify-content-center">
         <BodySelector
           PainLevel={PainLevel}
           setCurrentPart={setCurrentPart}
@@ -70,9 +69,7 @@ const Interact = () => {
           MonthPain={MonthPain}
           WeekPain={WeekPain}
         />
-      </div>
-      <div className="row">
-        <div className="col">
+
           <DataFiller
             currentPart={currentPart}
             setCurrentPart={setCurrentPart}
@@ -81,13 +78,9 @@ const Interact = () => {
             MonthPain={MonthPain}
             WeekPain={WeekPain}
           />
-        </div>
-        <div className="col">
-          <Button variant="outline-primary" onClick={handleSubmit}>
+          <Button variant="outline-primary" className='float-end' onClick={handleSubmit}>
             送出
           </Button>
-        </div>
-      </div>
     </div>
   );
 };
