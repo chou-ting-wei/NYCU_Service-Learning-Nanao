@@ -101,7 +101,8 @@ const Stat = ({ url }) => {
                     data: painData.map(item => item.pain),
                     backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    borderWidth: 1,
+                    yAxisID: 'y1'
                 }
             ]
         };
@@ -134,7 +135,7 @@ const Stat = ({ url }) => {
                     order: 2
                 },
                 {
-                    label: '一年內是否疼痛',
+                    label: '一年內是否影響正常生活',
                     type: 'bar',
                     data: useryear.map(item => item[selectedBodyPart] ? 1 : 0),
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
@@ -334,7 +335,19 @@ const Stat = ({ url }) => {
                 <div className="chart-container mt-4">
                     {chartData && (
                         chartType === 'bar' ? (
-                            <Bar data={chartData} />
+                            <Bar 
+                                data={chartData} 
+                                options={{
+                                    scales: {
+                                        y1: {
+                                            type: 'linear',
+                                            position: 'left',
+                                            beginAtZero: true,
+                                            max: 10
+                                        }
+                                    }
+                                }} 
+                                />
                         ) : (
                             <Line 
                                 data={chartData} 
