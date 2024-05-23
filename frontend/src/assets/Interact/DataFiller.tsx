@@ -3,11 +3,11 @@ import { Form } from "antd"
 import { useState } from "react"
 import { RadioChangeEvent } from "antd/lib/radio"
 const DataFiller = (props: any) => {
-    const [Weekvalue, setWeekValue] = useState(0);
+    const [Weekvalue, setWeekValue] = useState(false);
     const onChangeWeek = (e: RadioChangeEvent) => {
         setWeekValue(e.target.value);
     };
-    const [Monthvalue, setMonthValue] = useState(0);
+    const [Monthvalue, setMonthValue] = useState(false);
     const onChangeMonth = (e: RadioChangeEvent) => {
         setMonthValue(e.target.value);
     };
