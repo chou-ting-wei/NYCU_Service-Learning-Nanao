@@ -35,15 +35,15 @@ const BodySelector = (props: any) => {
                                         afterInjection={svg => {
                                                 svg.querySelectorAll('path').forEach(path => {
                                                         path.setAttribute("id", path.getAttribute('inkscape:label') ?? '');
-                                                        if (props.PainLevel[path.id] === undefined) {
+                                                        if (props.PainLevel[path.id] === undefined&&props.MonthPain[path.id] === undefined&&props.WeekPain[path.id] === undefined) {
                                                                 props.PainLevel[path.id] = 0;
+                                                                props.MonthPain[path.id] = 0;
+                                                                props.WeekPain[path.id] = 0;
                                                         }
                                                         path.setAttribute('fill', color[(~~(props.PainLevel[path.id]/2))]);
                                                         path.addEventListener('click', () => {
                                                                 path.setAttribute('fill', color[~~(props.PainLevel[path.id]/2)]);
                                                                 props.setCurrentPart(path.id);
-                                                                console.log(props.currentPart);
-                                                                console.log(props.PainLevel);
                                                         });
                                                 }
                                                 );
