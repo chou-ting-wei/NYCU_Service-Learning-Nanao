@@ -10,6 +10,7 @@ import 'chart.js/auto';
 import moment from 'moment';
 import { Userhurt, Usertime } from './ts/types';
 import { bodyParts } from './ts/constants';
+import withAuthRedirect from './withAuthRedirect';
 
 const useQuery = () => {
     return new URLSearchParams(useLocation().search);
@@ -387,4 +388,4 @@ const Stat = ({ url }) => {
     );
 };
 
-export default Stat;
+export default withAuthRedirect(Stat);

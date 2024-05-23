@@ -20,7 +20,6 @@ const Logout = ({ url }) => {
         navigate('/home');
       } catch (error) {
         console.error(error);
-
       }
     };
 

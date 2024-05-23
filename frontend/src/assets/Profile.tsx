@@ -2,6 +2,7 @@ import './Profile.css';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import withAuthRedirect from './withAuthRedirect';
 
 interface User {
   name: string;
@@ -111,4 +112,4 @@ const Profile = ({ user, url }) => {
   );
 };
 
-export default Profile;
+export default withAuthRedirect(Profile);

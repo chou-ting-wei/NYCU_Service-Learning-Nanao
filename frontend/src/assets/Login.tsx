@@ -20,10 +20,13 @@ const Login = ({ url }) => {
 
     useEffect(() => {
         if (success) {
-            setCookie("user", user, { path: "/" });
-            navigate('/home');  // Redirect on success
+            const expires = new Date();
+            expires.setTime(expires.getTime() + 60 * 60 * 1000); 
+            setCookie("user", user, { path: "/", expires });
+            navigate('/home');  
         }
-    }, [success, user, navigate]); // Run only when `success` changes
+    }, [success, user, navigate, setCookie]);
+
       
     const handleSubmit = async (e) => {
         e.preventDefault();

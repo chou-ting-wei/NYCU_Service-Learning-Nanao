@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Container, Table, Button, Navbar, Nav, Modal, Form } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './Admin.css';
-
+import withAuthRedirect from './withAuthRedirect';
 
 interface User {
     name: string;
@@ -21,7 +21,7 @@ interface Userdata {
     phone: string;
 }
 
-const UserManagement: React.FC = ({role, url}) => {
+const Admin: React.FC = ({role, url}) => {
     const [users, setUsers] = useState<User[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [newUsername, setNewUsername] = useState('');
@@ -475,4 +475,4 @@ const UserManagement: React.FC = ({role, url}) => {
     );
 };
 
-export default UserManagement;
+export default withAuthRedirect(Admin);
