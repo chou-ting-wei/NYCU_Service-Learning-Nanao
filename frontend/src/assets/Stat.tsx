@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { Container, Table, Button, Navbar, Form, FormControl, Dropdown, DropdownButton } from 'react-bootstrap';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import 'chart.js/auto';
+import moment from 'moment';
+
 
 interface Userhurt {
     id: string,
@@ -52,7 +54,7 @@ interface Userhurt {
 }
 
 const bodyParts = [
-    { label: "選擇部位", value: "default" },
+    { label: "所有部位", value: "default" },
     { label: "頸部", value: "neck" },
     { label: "右上臂", value: "right_upper_arm" },
     { label: "右肩", value: "right_shoulder" },
@@ -110,6 +112,21 @@ const Stat = ({ url }) => {
     const [searchDatefrom, setSearchDatefrom] = useState('');
     const [searchDateto, setSearchDateto] = useState('');
 
+    const [chartType, setChartType] = useState('bar');
+    const [filteredBodyParts, setFilteredBodyParts] = useState(bodyParts);
+    const [chartData, setChartData] = useState({
+        labels: [],
+        datasets: [
+            {
+                label: '疼痛指數平均',
+                data: [],
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }
+        ]
+    });
+
     const getUserID = async (username: string) => {
         const response = await axios.get(url + `user/find/${username}`, {
             headers: {
@@ -135,16 +152,62 @@ const Stat = ({ url }) => {
         fetchUserId();
     }, [userId, user]);
 
+    useEffect(() => {
+        const filteredParts = bodyParts.filter(part => part.label.includes(searchTerm));
+        setFilteredBodyParts(filteredParts);
+    }, [searchTerm]);
+    
+    useEffect(() => {
+        const painData = calculatePainAverage(userhurt, selectedBodyPart);
+        const newChartData = {
+            labels: painData.map(item => item.name),
+            datasets: [
+                {
+                    label: '疼痛指數',
+                    data: painData.map(item => item.pain),
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: selectedBodyPart === 'default'
+                }
+            ]
+        };
+        setChartData(newChartData);
+        setChartType(selectedBodyPart !== 'default' ? 'line' : 'bar');
+    }, [userhurt, selectedBodyPart]);
+
+    const calculatePainAverage = (data, selectedPart) => {
+        if (selectedPart && selectedPart !== 'default') {
+            return data
+                .map(item => ({
+                    name: moment(item.fill_time).format('YYYY-MM-DD HH:mm'),
+                    pain: item[selectedPart]
+                }))
+                .sort((a, b) => new Date(a.name) - new Date(b.name));
+        } else {
+            const partKeys = bodyParts.filter(part => part.value !== 'default').map(part => part.value);
+            const averages = partKeys.map(part => {
+                const totalPain = data.reduce((acc, curr) => acc + curr[part], 0);
+                const averagePain = totalPain / data.length;
+                return {
+                    name: bodyParts.find(bp => bp.value === part).label,
+                    pain: averagePain
+                };
+            });
+            return averages;
+        }
+    };
+    
     const fetchUserhurt = async (id: string) => {
         try {
             const params: any = {};
             if (searchDatefrom) {
-                params.start = searchDatefrom;
+                params.start = moment(searchDatefrom).toISOString();
             }
             if (searchDateto) {
-                params.end = searchDateto;
+                params.end = moment(searchDateto).toISOString();
             }
-    
+            
             const response = await axios.get(`${url}hurtform/${id}`, {
                 params,
                 headers: { 'Content-Type': 'application/json' },
@@ -166,44 +229,24 @@ const Stat = ({ url }) => {
             setUserhurt([]);
         }
     }
-    
+
+    const fetchUserweek = async (id: string) => {
+
+    }
+
+    const fetchUseryear = async (id: string) => {
+
+    }
 
     const handleDelete = async () => {
+        // TODO
         console.log("Delete userhurt");
     }
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         fetchUserhurt(userId);
-    };
-
-    const calculatePainAverage = (data) => {
-        const partKeys = bodyParts.filter(part => part.value !== 'default').map(part => part.value);
-        const averages = partKeys.map(part => {
-            const totalPain = data.reduce((acc, curr) => acc + curr[part], 0);
-            const averagePain = totalPain / data.length;
-            return {
-                name: bodyParts.find(bp => bp.value === part).label,
-                pain: averagePain
-            };
-        });
-        return averages;
-    };
-
-    const filteredBodyParts = bodyParts.filter(part => part.label.includes(searchTerm));
-    const painData = calculatePainAverage(userhurt);
-    const chartData = {
-        labels: painData.map(item => item.name),
-        datasets: [
-            {
-                label: '疼痛指數',
-                data: painData.map(item => item.pain),
-                backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }
-        ]
-    };
+    };  
 
     return (
         <div className="stat">
@@ -253,11 +296,41 @@ const Stat = ({ url }) => {
                 </Navbar>
 
                 <div className="chart-container mt-4">
-                    <Bar data={chartData} />
+                    {chartType === 'bar' ? (
+                        <Bar 
+                            data={chartData} 
+                            options={{ 
+                                scales: { 
+                                    x: { 
+                                        type: 'category', 
+                                        ticks: { maxRotation: 90, minRotation: 0 } 
+                                    }, 
+                                    y: { 
+                                        beginAtZero: true 
+                                    } 
+                                } 
+                            }} 
+                        />
+                    ) : (
+                        <Line 
+                            data={chartData} 
+                            options={{ 
+                                scales: { 
+                                    x: { 
+                                        type: 'category', 
+                                        ticks: { maxRotation: 90, minRotation: 0 } 
+                                    }, 
+                                    y: { 
+                                        beginAtZero: true 
+                                    } 
+                                } 
+                            }} 
+                        />
+                    )}
                 </div>
 
 
-                <Table striped bordered hover className="mt-2">
+                <Table striped bordered hover className="mt-4">
                     <thead>
                         <tr>
                             <th className="stat-week-column">一週內是否疼痛</th>
