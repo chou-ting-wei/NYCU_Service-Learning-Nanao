@@ -1,9 +1,9 @@
-import './Stat.css'
+import './Stat.css';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { Container, Table, Button, Navbar, Form, FormControl, Dropdown, DropdownButton, Modal } from 'react-bootstrap';
+import { Container, Table, Button, Navbar, Form, FormControl, Dropdown, Modal } from 'react-bootstrap';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js'; 
 import 'chart.js/auto';
@@ -13,11 +13,17 @@ import { bodyParts } from './ts/constants';
 import withAuthRedirect from './withAuthRedirect';
 import * as XLSX from 'xlsx';
 
+ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend);
+
 const useQuery = () => {
     return new URLSearchParams(useLocation().search);
 };
 
-const Stat = ({ url }) => {
+interface StatProps {
+  url: string;
+}
+
+const Stat: React.FC<StatProps> = ({ url }) => {
     const [cookies] = useCookies(["user"]);
     const user = cookies.user;
 
@@ -29,18 +35,17 @@ const Stat = ({ url }) => {
     const [useryear, setUseryear] = useState<Usertime[]>([]);
 
     const [selectedBodyPart, setSelectedBodyPart] = useState("default");
-    const [searchTerm, setSearchTerm] = useState('');
     const [searchDatefrom, setSearchDatefrom] = useState('');
     const [searchDateto, setSearchDateto] = useState('');
 
     const [chartType, setChartType] = useState('bar');
-    const [filteredBodyParts, setFilteredBodyParts] = useState(bodyParts);
+    // const [filteredBodyParts, setFilteredBodyParts] = useState(bodyParts);
     const [chartData, setChartData] = useState({
-        labels: [],
+        labels: [] as string[],
         datasets: [
             {
                 label: '疼痛指數平均',
-                data: [],
+                data: [] as number[],
                 backgroundColor: 'rgba(75, 192, 192, 0.6)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
@@ -83,22 +88,15 @@ const Stat = ({ url }) => {
     }, [userId, user]);
 
     useEffect(() => {
-        const filteredParts = bodyParts.filter(part => part.label.includes(searchTerm));
-        setFilteredBodyParts(filteredParts);
-    }, [searchTerm]);
-    
-
-    useEffect(() => {
         if (selectedBodyPart && selectedBodyPart !== 'default') {
             setChartType('line');
-        }
-        else {  
+        } else {  
             setChartType('bar');
         }
         
         const painData = calculatePainAverage(userhurt, selectedBodyPart);
         const individualPainData = calculatePainData(userhurt);
-    
+
         const barChartData = {
             labels: painData.map(item => item.name),
             datasets: [
@@ -112,7 +110,7 @@ const Stat = ({ url }) => {
                 }
             ]
         };
-    
+
         const lineChartData = {
             labels: individualPainData.map(item => moment(item.name).format('YYYY-MM-DD HH:mm')),
             datasets: [
@@ -131,7 +129,7 @@ const Stat = ({ url }) => {
                 {
                     label: '一週內是否疼痛',
                     type: 'bar',
-                    data: userweek.map(item => item[selectedBodyPart] ? 1 : 0),
+                    data: userweek.map(item => item[selectedBodyPart as keyof Usertime] ? 1 : 0),
                     backgroundColor: 'rgba(255, 99, 132, 0.6)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1,
@@ -143,7 +141,7 @@ const Stat = ({ url }) => {
                 {
                     label: '一年內是否影響正常生活',
                     type: 'bar',
-                    data: useryear.map(item => item[selectedBodyPart] ? 1 : 0),
+                    data: useryear.map(item => item[selectedBodyPart as keyof Usertime] ? 1 : 0),
                     backgroundColor: 'rgba(54, 162, 235, 0.6)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1,
@@ -154,24 +152,23 @@ const Stat = ({ url }) => {
                 }
             ]
         };
-        
-    
-        setChartData(chartType === 'bar' ? barChartData : lineChartData);
-    }, [userhurt, searchTerm, selectedBodyPart, chartType, userweek, useryear]);      
 
-    const calculatePainData = (data) => {
+        setChartData(chartType === 'bar' ? barChartData : lineChartData);
+    }, [userhurt, selectedBodyPart, chartType, userweek, useryear]);
+
+    const calculatePainData = (data: Userhurt[]) => {
         return data.map(item => ({
             name: item.fill_time,
             pain: item[selectedBodyPart]
         })).sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime());
     };
-    
-    const calculatePainAverage = (data, selectedPart) => {
+
+    const calculatePainAverage = (data: Userhurt[], selectedPart: string) => {
         if (selectedPart && selectedPart !== 'default') {
             const totalPain = data.reduce((acc, curr) => acc + curr[selectedPart], 0);
             const averagePain = totalPain / data.length;
             return [{
-                name: bodyParts.find(bp => bp.value === selectedPart).label,
+                name: bodyParts.find(bp => bp.value === selectedPart)?.label || '',
                 pain: averagePain
             }];
         } else {
@@ -180,14 +177,14 @@ const Stat = ({ url }) => {
                 const totalPain = data.reduce((acc, curr) => acc + curr[part], 0);
                 const averagePain = totalPain / data.length;
                 return {
-                    name: bodyParts.find(bp => bp.value === part).label,
+                    name: bodyParts.find(bp => bp.value === part)?.label || '',
                     pain: averagePain
                 };
             });
             return averages;
         }
     };
- 
+
     const fetchUserhurt = async (id: string) => {
         try {
             const params: any = {};
@@ -204,7 +201,7 @@ const Stat = ({ url }) => {
                 withCredentials: true
             });
             const data = response.data;
-    
+
             if (Array.isArray(data)) {
                 setUserhurt(data);
             } else if (Array.isArray(data.data)) {
@@ -216,7 +213,7 @@ const Stat = ({ url }) => {
             console.error("Error fetching user hurt data:", error);
             setUserhurt([]);
         }
-    }
+    };
 
     const fetchUserweek = async (id: string) => {
         try {
@@ -227,14 +224,14 @@ const Stat = ({ url }) => {
             if (searchDateto) {
                 params.end = moment(searchDateto).toISOString();
             }
-    
+
             const response = await axios.get(`${url}weekform/${id}`, {
                 params,
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             });
             const data = response.data;
-    
+
             if (Array.isArray(data)) {
                 setUserweek(data);
             } else if (Array.isArray(data.data)) {
@@ -246,8 +243,8 @@ const Stat = ({ url }) => {
             console.error("Error fetching user week data:", error);
             setUserweek([]);
         }
-    }
-    
+    };
+
     const fetchUseryear = async (id: string) => {
         try {
             const params: any = {};
@@ -257,14 +254,14 @@ const Stat = ({ url }) => {
             if (searchDateto) {
                 params.end = moment(searchDateto).toISOString();
             }
-    
+
             const response = await axios.get(`${url}yearform/${id}`, {
                 params,
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             });
             const data = response.data;
-    
+
             if (Array.isArray(data)) {
                 setUseryear(data);
             } else if (Array.isArray(data.data)) {
@@ -276,8 +273,8 @@ const Stat = ({ url }) => {
             console.error("Error fetching user year data:", error);
             setUseryear([]);
         }
-    }
-    
+    };
+
     const handleDelete = async (formId: string) => {
         await axios.delete(`${url}hurtform/${formId}`, {
             headers: { 'Content-Type': 'application/json' },
@@ -291,19 +288,23 @@ const Stat = ({ url }) => {
             headers: { 'Content-Type': 'application/json' },
             withCredentials: true
         });
-        fetchUserhurt(userId);
-        fetchUserweek(userId);
-        fetchUseryear(userId);
-    }
+        if (userId) {
+            fetchUserhurt(userId);
+            fetchUserweek(userId);
+            fetchUseryear(userId);
+        }
+    };
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        fetchUserhurt(userId);
-        fetchUserweek(userId);
-        fetchUseryear(userId);
+        if (userId) {
+            fetchUserhurt(userId);
+            fetchUserweek(userId);
+            fetchUseryear(userId);
+        }
     };  
 
-    const renderDropdownItems = (parts, setSelectedBodyPart) => {
+    const renderDropdownItems = (parts: typeof bodyParts, setSelectedBodyPart: React.Dispatch<React.SetStateAction<string>>) => {
         const categories = Array.from(new Set(parts.map(part => part.category)));
         return (
             <div className="container-fluid">
@@ -333,16 +334,16 @@ const Stat = ({ url }) => {
     };
 
     const getUsername = async (uid: string) => {
-        const response = axios.get(url + `user/${uid}`, {
+        const response = await axios.get(url + `user/${uid}`, {
             headers: {
                 'Content-Type': 'application/json'
             },
             withCredentials: true
         });
-        return (await response).data;
+        return response.data;
     };
 
-    const exportToExcel = async (uid:string) => {
+    const exportToExcel = async (uid: string) => {
         const response = await getUsername(uid);
         const worksheet = XLSX.utils.json_to_sheet(userhurt);
         const workbook = XLSX.utils.book_new();
@@ -355,14 +356,14 @@ const Stat = ({ url }) => {
             <Container>
                 <h1>疼痛統計</h1>
                 <Navbar expand="lg" className="justify-content-between mt-4">
-                    <Form inline="true" onSubmit={handleSearch} className="d-flex w-100 align-items-center" style={{ whiteSpace: 'nowrap' }}>
+                    <Form onSubmit={handleSearch} className="d-flex w-100 align-items-center" style={{ whiteSpace: 'nowrap' }}>
                         <div className="d-flex flex-wrap">
                             <Dropdown>
                                 <Dropdown.Toggle variant="outline-secondary" id="dropdown-basic" className="me-5">
                                     {bodyParts.find(part => part.value === selectedBodyPart)?.label || "選擇部位"}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu>
-                                    {renderDropdownItems(filteredBodyParts, setSelectedBodyPart)}
+                                    {renderDropdownItems(bodyParts, setSelectedBodyPart)}
                                 </Dropdown.Menu>
                             </Dropdown>
                         </div>
@@ -395,8 +396,7 @@ const Stat = ({ url }) => {
                                 匯出 Excel
                             </Button>
                             </>
-                        )
-                        }
+                        )}
                     </Form>
                 </Navbar>
 
@@ -415,7 +415,7 @@ const Stat = ({ url }) => {
                                         }
                                     }
                                 }} 
-                                />
+                            />
                         ) : (
                             <Line 
                                 data={chartData} 
@@ -439,7 +439,6 @@ const Stat = ({ url }) => {
                                     }
                                 }} 
                             />
-
                         )
                     )}
                 </div>
@@ -471,7 +470,6 @@ const Stat = ({ url }) => {
                         </Table>
                     </Modal.Body>
                 </Modal>
-
             </Container>
         </div>
     );

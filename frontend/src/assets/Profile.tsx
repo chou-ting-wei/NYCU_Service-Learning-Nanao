@@ -23,7 +23,12 @@ const useQuery = () => {
   return new URLSearchParams(useLocation().search);
 };
 
-const Profile = ({ user, url }) => {
+interface ProfileProps {
+  user: string | null;
+  url: string;
+}
+
+const Profile: React.FC<ProfileProps> = ({ user, url }) => {
   const query = useQuery();
   const id = query.get('id');
   const [users, setUsers] = useState<User | null>(null);
@@ -32,14 +37,14 @@ const Profile = ({ user, url }) => {
   const [errMsg, setErrMsg] = useState('');
 
   const getUserID = async (username: string) => {
-    const response = axios.get(url + `user/find/${username}`,{
+    const response = await axios.get(url + `user/find/${username}`, {
       headers: {
-          'Content-Type': 'application/json',
+        'Content-Type': 'application/json',
       },
-      withCredentials: true
-  });
-    return (await response).data;
-};
+      withCredentials: true,
+    });
+    return response.data;
+  };
 
   useEffect(() => {
     const fetchUserId = async () => {
@@ -60,17 +65,17 @@ const Profile = ({ user, url }) => {
     try {
       const response1 = await axios.get(`${url}user/${id}`, {
         headers: {
-            'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
         },
-        withCredentials: true
-    });
+        withCredentials: true,
+      });
       setUsers(response1.data);
       const response2 = await axios.get(`${url}user-detail/${id}`, {
         headers: {
-            'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
         },
-        withCredentials: true
-    });
+        withCredentials: true,
+      });
       setUserData(response2.data);
     } catch (error) {
       setErrMsg('Error fetching user data.');
@@ -89,7 +94,7 @@ const Profile = ({ user, url }) => {
 
   const displayData = userData || defaultData;
 
-  const genderMap = {
+  const genderMap: { [key: string]: string } = {
     MALE: '男',
     FEMALE: '女',
   };

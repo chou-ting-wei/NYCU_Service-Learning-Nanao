@@ -21,7 +21,11 @@ interface Userdata {
     phone: string;
 }
 
-const Admin: React.FC = ({role, url}) => {
+interface AdminProps {
+    url: string;
+}
+
+const Admin: React.FC<AdminProps> = ({ url }) => {
     const [users, setUsers] = useState<User[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [newUsername, setNewUsername] = useState('');
@@ -55,7 +59,7 @@ const Admin: React.FC = ({role, url}) => {
 
     const fetchUsers = async () => {
         try {
-            const response = await axios.get(url + 'user',{
+            const response = await axios.get(`${url}user`, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -70,7 +74,7 @@ const Admin: React.FC = ({role, url}) => {
 
     const fetchUserdata = async (id: number): Promise<Userdata | null> => {
         try {
-            const response = await axios.get(url + `user-detail/${id}`,{
+            const response = await axios.get(`${url}user-detail/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -83,11 +87,10 @@ const Admin: React.FC = ({role, url}) => {
             return null;
         }
     };
-    
 
     const handleDelete = async (id: number) => {
         try {
-            await axios.delete(url + `user/${id}`,{
+            await axios.delete(`${url}user/${id}`, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -107,7 +110,6 @@ const Admin: React.FC = ({role, url}) => {
     };
 
     const handleUpdate = async (username: string, role: string) => {
-        if (username === null) return;
         const editUserId = await getUserID(username);
         try {
             const updatedUser = {
@@ -116,7 +118,7 @@ const Admin: React.FC = ({role, url}) => {
                 password: editPassword, 
                 role: role
             };
-            await axios.patch(url + `user/${editUserId}`, updatedUser, {
+            await axios.patch(`${url}user/${editUserId}`, updatedUser, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -126,7 +128,6 @@ const Admin: React.FC = ({role, url}) => {
             setShowEditModal(false);
             setEditUsername('');
             setEditPassword('');
-
         } catch (error) {
             setErrMsg('Error updating user.');
         }
@@ -160,7 +161,6 @@ const Admin: React.FC = ({role, url}) => {
     };
 
     const handleUpdate2 = async (username: string) => {
-        if (username === null) return;
         const editUserId = await getUserID(username);
         try {
             const updatedUser = { 
@@ -172,7 +172,7 @@ const Admin: React.FC = ({role, url}) => {
                 email: editUseremail2,
                 phone: editUserphone2
             };
-            await axios.patch(url + `user-detail/${editUserId}`, updatedUser, {
+            await axios.patch(`${url}user-detail/${editUserId}`, updatedUser, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -189,7 +189,6 @@ const Admin: React.FC = ({role, url}) => {
             setEditUseremail2('');
             setEditUseraddr2('');
             setEditUsermhis2('');
-
         } catch (error) {
             setErrMsg('Error updating user.');
         }
@@ -200,8 +199,8 @@ const Admin: React.FC = ({role, url}) => {
             const newUser = { 
                 name: newName,
                 username: newUsername, 
-                password: newPassword , 
-                role:"USER",
+                password: newPassword, 
+                role: "USER",
                 userDetail: {
                     create: {
                       gender: null,
@@ -214,7 +213,7 @@ const Admin: React.FC = ({role, url}) => {
                     }
                 }
             };
-            await axios.post(url + 'user', newUser, {
+            await axios.post(`${url}user`, newUser, {
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -225,20 +224,19 @@ const Admin: React.FC = ({role, url}) => {
             setNewName('');
             setNewUsername('');
             setNewPassword('');
-            
         } catch (error) {
             setErrMsg('Error adding user.');
         }
     };
 
     const getUserID = async (username: string) => {
-        const response = axios.get(url + `user/find/${username}`, {
+        const response = await axios.get(`${url}user/find/${username}`, {
             headers: {
                 'Content-Type': 'application/json'
             },
             withCredentials: true
         });
-        return (await response).data;
+        return response.data;
     };
 
     return (
@@ -247,7 +245,6 @@ const Admin: React.FC = ({role, url}) => {
                 <h1>管理介面</h1>
                 <Navbar expand="lg">
                     <Container>
-                        {/* <Navbar.Brand>User Management</Navbar.Brand> */}
                         <Nav className="ms-auto">
                             <Button variant="outline-success" onClick={() => setShowModal(true)}>新增帳號</Button>
                         </Nav>
@@ -281,18 +278,14 @@ const Admin: React.FC = ({role, url}) => {
                                     &nbsp;
                                     <Button variant="outline-secondary" onClick={() => handleEditUser2(user)}>編輯資料</Button>
                                     &nbsp;
-                                    {
-                                        user.role !== 'ADMIN' && (
-                                            <Button variant="outline-danger" onClick={async () => handleDelete(await getUserID(user.username))}>刪除</Button>
-                                        )
-                                    }
+                                    {user.role !== 'ADMIN' && (
+                                        <Button variant="outline-danger" onClick={async () => handleDelete(await getUserID(user.username))}>刪除</Button>
+                                    )}
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </Table>
-                {/* <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div> */}
-
                 <Modal show={showModal} onHide={() => setShowModal(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>新增帳號</Modal.Title>
@@ -334,142 +327,140 @@ const Admin: React.FC = ({role, url}) => {
                 </Modal>
 
                 <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>編輯帳密</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="modal-body">
-                    <Form>
-                        <Form.Group controlId="formEditUsername" className="mt-3">
-                            <Form.Label>姓名</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEditUsername">
-                            <Form.Label>帳號</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editUsername}
-                                onChange={(e) => setEditUsername(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEditName" className="mt-3">
-                            <Form.Label>密碼</Form.Label>
-                            <Form.Control
-                                type="password"
-                                value={editPassword}
-                                onChange={(e) => setEditPassword(e.target.value)}
-                                required
-                            /> 
-                        </Form.Group>
+                    <Modal.Header closeButton>
+                        <Modal.Title>編輯帳密</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="modal-body">
+                        <Form>
+                            <Form.Group controlId="formEditUsername" className="mt-3">
+                                <Form.Label>姓名</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formEditUsername" className="mt-3">
+                                <Form.Label>帳號</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={editUsername}
+                                    onChange={(e) => setEditUsername(e.target.value)}
+                                    disabled
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formEditName" className="mt-3">
+                                <Form.Label>密碼</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    value={editPassword}
+                                    onChange={(e) => setEditPassword(e.target.value)}
+                                    required
+                                /> 
+                            </Form.Group>
+                        </Form>
+                        <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
+                    </Modal.Body>
+                    <Modal.Footer className="modal-footer">
+                        <Button variant="outline-primary" onClick={() => handleUpdate(editUsername, editUserrole)}>
+                            送出
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
 
-                    </Form>
-                    <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
-                </Modal.Body>
-                <Modal.Footer className="modal-footer">
-                    <Button variant="outline-primary" onClick={() => handleUpdate(editUsername, editUserrole)}>
-                        送出
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
-            <Modal show={showEditModal2} onHide={() => setShowEditModal2(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>編輯資料</Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="modal-body">
-                    <Form>
-                        <Form.Group controlId="formEditName2" >
-                            <Form.Label>姓名</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editName2}
-                                disabled
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEditUsername2" className="mt-3">
-                            <Form.Label>帳號</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editUsername2}
-                                disabled
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEditGender2" className="mt-3">
-                            <Form.Label>性別</Form.Label>
-                            <Form.Control
-                                as="select"
-                                value={editGender2 || ""}
-                                onChange={(e) => setEditGender2(e.target.value)}
-                            >
-                                <option value="">選擇</option>
-                                <option value="MALE">男</option>
-                                <option value="FEMALE">女</option>
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formEditBirth2" className="mt-3">
-                            <Form.Label>生日</Form.Label>
-                            <Form.Control
-                                as="input"
-                                type="date"
-                                value={editUserbirth2}
-                                onChange={(e) => setEditUserbirth2(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEditUserage" className="mt-3">
-                            <Form.Label>年齡</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editUserage2 <= 0 ? "" : editUserage2}
-                                onChange={(e) => setEditUserage2(Number(e.target.value))}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEditUserphone" className="mt-3">
-                            <Form.Label>電話</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editUserphone2}
-                                onChange={(e) => setEditUserphone2(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEditUseremail" className="mt-3">
-                            <Form.Label>電子郵件</Form.Label>
-                            <Form.Control
-                                type="email"
-                                value={editUseremail2}
-                                onChange={(e) => setEditUseremail2(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEditUseraddr" className="mt-3">
-                            <Form.Label>地址</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editUseraddr2}
-                                onChange={(e) => setEditUseraddr2(e.target.value)}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formEditUsermhis" className="mt-3">
-                            <Form.Label>過去病史 (以、分隔)</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={editUsermhis2}
-                                onChange={(e) => setEditUsermhis2(e.target.value)}
-                            />
-                        </Form.Group>
-                    </Form>
-                    <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
-                </Modal.Body>
-                <Modal.Footer className="modal-footer">
-                    <Button variant="outline-primary" onClick={() => handleUpdate2(editUsername2)}>
-                        送出
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
+                <Modal show={showEditModal2} onHide={() => setShowEditModal2(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>編輯資料</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="modal-body">
+                        <Form>
+                            <Form.Group controlId="formEditName2" >
+                                <Form.Label>姓名</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={editName2}
+                                    disabled
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formEditUsername2" className="mt-3">
+                                <Form.Label>帳號</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={editUsername2}
+                                    disabled
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formEditGender2" className="mt-3">
+                                <Form.Label>性別</Form.Label>
+                                <Form.Control
+                                    as="select"
+                                    value={editGender2 || ""}
+                                    onChange={(e) => setEditGender2(e.target.value)}
+                                >
+                                    <option value="">選擇</option>
+                                    <option value="MALE">男</option>
+                                    <option value="FEMALE">女</option>
+                                </Form.Control>
+                            </Form.Group>
+                            <Form.Group controlId="formEditBirth2" className="mt-3">
+                                <Form.Label>生日</Form.Label>
+                                <Form.Control
+                                    as="input"
+                                    type="date"
+                                    value={editUserbirth2}
+                                    onChange={(e) => setEditUserbirth2(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formEditUserage" className="mt-3">
+                                <Form.Label>年齡</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={editUserage2 <= 0 ? "" : editUserage2}
+                                    onChange={(e) => setEditUserage2(Number(e.target.value))}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formEditUserphone" className="mt-3">
+                                <Form.Label>電話</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={editUserphone2}
+                                    onChange={(e) => setEditUserphone2(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formEditUseremail" className="mt-3">
+                                <Form.Label>電子郵件</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    value={editUseremail2}
+                                    onChange={(e) => setEditUseremail2(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formEditUseraddr" className="mt-3">
+                                <Form.Label>地址</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={editUseraddr2}
+                                    onChange={(e) => setEditUseraddr2(e.target.value)}
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formEditUsermhis" className="mt-3">
+                                <Form.Label>過去病史 (以、分隔)</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={editUsermhis2}
+                                    onChange={(e) => setEditUsermhis2(e.target.value)}
+                                />
+                            </Form.Group>
+                        </Form>
+                        <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
+                    </Modal.Body>
+                    <Modal.Footer className="modal-footer">
+                        <Button variant="outline-primary" onClick={() => handleUpdate2(editUsername2)}>
+                            送出
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </Container>
         </div>
     );
