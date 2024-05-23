@@ -6,20 +6,16 @@
     padding-bottom: 5%;
 }
 
-.table .stat-part-column {
-    width: 15%;
-}
-
 .table .stat-week-column {
-    width: 15%;
+    width: 25%;
 }
 
 .table .stat-year-column {
-    width: 15%;
+    width: 25%;
 }
 
 .table .stat-time-column {
-    width: 35%;
+    width: 30%;
 }
 
 .table .stat-actions-column {

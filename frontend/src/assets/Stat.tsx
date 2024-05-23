@@ -4,7 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { Container, Table, Button, Navbar, Form, FormControl, Dropdown, DropdownButton } from 'react-bootstrap';
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from 'recharts';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import 'chart.js/auto';
 
 interface Userhurt {
     id: string,
@@ -50,6 +52,7 @@ interface Userhurt {
 }
 
 const bodyParts = [
+    { label: "選擇部位", value: "default" },
     { label: "頸部", value: "neck" },
     { label: "右上臂", value: "right_upper_arm" },
     { label: "右肩", value: "right_shoulder" },
@@ -102,7 +105,7 @@ const Stat = ({ url }) => {
     const [userId, setUserId] = useState<string | null>(id || null);
     const [userhurt, setUserhurt] = useState<Userhurt[]>([]);
 
-    const [selectedBodyPart, setSelectedBodyPart] = useState('');
+    const [selectedBodyPart, setSelectedBodyPart] = useState("default");
     const [searchTerm, setSearchTerm] = useState('');
     const [searchDatefrom, setSearchDatefrom] = useState('');
     const [searchDateto, setSearchDateto] = useState('');
@@ -123,16 +126,16 @@ const Stat = ({ url }) => {
                 const fetchedId = await getUserID(user);
                 if (fetchedId) {
                     setUserId(fetchedId);
-                    fetchUserhurt();
+                    fetchUserhurt(fetchedId);
                 }
             } else if (userId) {
-                fetchUserhurt();
+                fetchUserhurt(userId);
             }
         };
         fetchUserId();
     }, [userId, user]);
 
-    const fetchUserhurt = async () => {
+    const fetchUserhurt = async (id: string) => {
         try {
             const params: any = {};
             if (searchDatefrom) {
@@ -142,15 +145,19 @@ const Stat = ({ url }) => {
                 params.end = searchDateto;
             }
     
-            const response = await axios.get(`${url}hurtform/${userId}`, {
+            const response = await axios.get(`${url}hurtform/${id}`, {
                 params,
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             });
             const data = response.data;
-            // Ensure data is an array
+    
+            // console.log(data);
+    
             if (Array.isArray(data)) {
                 setUserhurt(data);
+            } else if (Array.isArray(data.data)) {
+                setUserhurt(data.data);
             } else {
                 setUserhurt([]);
             }
@@ -162,26 +169,48 @@ const Stat = ({ url }) => {
     
 
     const handleDelete = async () => {
-        // Implement delete logic
+        console.log("Delete userhurt");
     }
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        fetchUserhurt();
+        fetchUserhurt(userId);
+    };
+
+    const calculatePainAverage = (data) => {
+        const partKeys = bodyParts.filter(part => part.value !== 'default').map(part => part.value);
+        const averages = partKeys.map(part => {
+            const totalPain = data.reduce((acc, curr) => acc + curr[part], 0);
+            const averagePain = totalPain / data.length;
+            return {
+                name: bodyParts.find(bp => bp.value === part).label,
+                pain: averagePain
+            };
+        });
+        return averages;
     };
 
     const filteredBodyParts = bodyParts.filter(part => part.label.includes(searchTerm));
-    const painData = userhurt.map(uh => ({
-        name: uh.fill_time, 
-        pain: uh[selectedBodyPart] 
-    }));
+    const painData = calculatePainAverage(userhurt);
+    const chartData = {
+        labels: painData.map(item => item.name),
+        datasets: [
+            {
+                label: '疼痛指數',
+                data: painData.map(item => item.pain),
+                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }
+        ]
+    };
 
     return (
         <div className="stat">
             <Container>
                 <h1>疼痛統計</h1>
                 <Navbar expand="lg" className="justify-content-between mt-4">
-                    <Form inline='true' onSubmit={handleSearch} className="d-flex w-100 align-items-center" style={{ whiteSpace: 'nowrap' }}>
+                    <Form inline="true" onSubmit={handleSearch} className="d-flex w-100 align-items-center" style={{ whiteSpace: 'nowrap' }}>
                         <FormControl
                             type="text"
                             placeholder="搜尋部位"
@@ -189,13 +218,22 @@ const Stat = ({ url }) => {
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
-                        <DropdownButton className="me-5" variant="outline-secondary" title={selectedBodyPart ? bodyParts.find(part => part.value === selectedBodyPart).label : "選擇部位"} id="dropdown-menu">
+                        <DropdownButton 
+                            className="me-5" 
+                            variant="outline-secondary" 
+                            title={bodyParts.find(part => part.value === selectedBodyPart)?.label || "選擇部位"} 
+                            id="dropdown-menu"
+                        >
                             {filteredBodyParts.map(part => (
-                                <Dropdown.Item key={part.value} eventKey={part.value} onSelect={() => setSelectedBodyPart(part.value)}>
+                                <Dropdown.Item 
+                                    key={part.value} 
+                                    onClick={() => setSelectedBodyPart(part.value)}
+                                >
                                     {part.label}
                                 </Dropdown.Item>
                             ))}
                         </DropdownButton>
+
                         <div className="text-center me-3" style={{ width: '120px' }}>搜尋時間</div>
                         <FormControl
                             type="date"
@@ -210,50 +248,42 @@ const Stat = ({ url }) => {
                             value={searchDateto}
                             onChange={e => setSearchDateto(e.target.value)}
                         />
-                        <Button variant="outline-success" type="submit"><div>送出</div></Button>
+                        <Button variant="outline-success" type="submit">送出</Button>
                     </Form>
                 </Navbar>
 
-            </Container>
-            
-            <div className="chart-container mt-4">
-                <BarChart width={1000} height={500} data={painData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="pain" fill="#8884d8" />
-                </BarChart>
-            </div>
-            
-            <Table striped bordered hover className="mt-2">
-                <thead>
-                    <tr>
-                        <th>疼痛部位</th>
-                        <th>一週內是否疼痛</th>
-                        <th>一年內是否疼痛</th>
-                        <th>填表時間</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {userhurt.map(uh => (
-                        <tr key={uh.id}>
-                            <td className="stat-part-column">{uh[selectedBodyPart]}</td>
-                            <td className="stat-week-column">{/* Implement logic to display weekly pain */}</td>
-                            <td className="stat-year-column">{/* Implement logic to display yearly pain */}</td>
-                            <td className="stat-time-column">{uh.fill_time}</td>
-                            <td className="stat-actions-column">
-                                {user !== 'admin' && (
-                                    <Button variant="danger" onClick={handleDelete}>刪除</Button>
-                                )}
-                            </td>
+                <div className="chart-container mt-4">
+                    <Bar data={chartData} />
+                </div>
+
+
+                <Table striped bordered hover className="mt-2">
+                    <thead>
+                        <tr>
+                            <th className="stat-week-column">一週內是否疼痛</th>
+                            <th className="stat-year-column">一年內是否疼痛</th>
+                            <th className="stat-time-column">填表時間</th>
+                            <th className="stat-actions-column">操作</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {userhurt.map(uh => (
+                            <tr key={uh.id}>
+                                <td className="stat-week-column">{/* Implement logic to display weekly pain */}</td>
+                                <td className="stat-year-column">{/* Implement logic to display yearly pain */}</td>
+                                <td className="stat-time-column">{uh.fill_time}</td>
+                                <td className="stat-actions-column">
+                                    {user === 'admin' && (
+                                        <Button variant="outline-danger" onClick={() => handleDelete(uh.id)}>刪除</Button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </Container>
         </div>
     );
-}
+};
 
 export default Stat;
