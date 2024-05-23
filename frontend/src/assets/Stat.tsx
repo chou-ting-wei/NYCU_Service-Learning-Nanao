@@ -3,7 +3,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
-import { Container, Table, Button, Navbar, Form, FormControl, Dropdown, DropdownButton } from 'react-bootstrap';
+import { Container, Table, Button, Navbar, Form, FormControl, Dropdown, DropdownButton, Modal } from 'react-bootstrap';
 import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js'; 
 import 'chart.js/auto';
@@ -11,6 +11,7 @@ import moment from 'moment';
 import { Userhurt, Usertime } from './ts/types';
 import { bodyParts } from './ts/constants';
 import withAuthRedirect from './withAuthRedirect';
+import * as XLSX from 'xlsx';
 
 const useQuery = () => {
     return new URLSearchParams(useLocation().search);
@@ -46,6 +47,11 @@ const Stat = ({ url }) => {
             }
         ]
     });
+
+    const [showModal, setShowModal] = useState(false);
+
+    const handleShow = () => setShowModal(true);
+    const handleClose = () => setShowModal(false);
 
     const getUserID = async (username: string) => {
         const response = await axios.get(url + `user/find/${username}`, {
@@ -272,9 +278,22 @@ const Stat = ({ url }) => {
         }
     }
     
-    const handleDelete = async () => {
-        // TODO
-        console.log("Delete userhurt");
+    const handleDelete = async (formId: string) => {
+        await axios.delete(`${url}hurtform/${formId}`, {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true
+        });
+        await axios.delete(`${url}weekform/${formId}`, {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true
+        });
+        await axios.delete(`${url}yearform/${formId}`, {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true
+        });
+        fetchUserhurt(userId);
+        fetchUserweek(userId);
+        fetchUseryear(userId);
     }
 
     const handleSearch = (e: React.FormEvent) => {
@@ -283,31 +302,6 @@ const Stat = ({ url }) => {
         fetchUserweek(userId);
         fetchUseryear(userId);
     };  
-
-    // const renderDropdownItems = (parts, setSelectedBodyPart) => {
-    //     const categories = Array.from(new Set(parts.map(part => part.category)));
-    //     return (
-    //         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-    //             {categories.map(category => (
-    //                 <Dropdown key={category} className="mt-2">
-    //                     <Dropdown.Toggle variant="outline-secondary" id={`dropdown-basic-${category}`}>
-    //                         {category}
-    //                     </Dropdown.Toggle>
-    //                     <Dropdown.Menu>
-    //                         {parts.filter(part => part.category === category).map(part => (
-    //                             <Dropdown.Item 
-    //                                 key={part.value} 
-    //                                 onClick={() => setSelectedBodyPart(part.value)}
-    //                             >
-    //                                 {part.label}
-    //                             </Dropdown.Item>
-    //                         ))}
-    //                     </Dropdown.Menu>
-    //                 </Dropdown>
-    //             ))}
-    //         </div>
-    //     );
-    // };
 
     const renderDropdownItems = (parts, setSelectedBodyPart) => {
         const categories = Array.from(new Set(parts.map(part => part.category)));
@@ -338,35 +332,30 @@ const Stat = ({ url }) => {
         );
     };
 
+    const getUsername = async (uid: string) => {
+        const response = axios.get(url + `user/${uid}`, {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            withCredentials: true
+        });
+        return (await response).data;
+    };
+
+    const exportToExcel = async (uid:string) => {
+        const response = await getUsername(uid);
+        const worksheet = XLSX.utils.json_to_sheet(userhurt);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "疼痛資料");
+        XLSX.writeFile(workbook, `疼痛資料_${response.username}.xlsx`);
+    };
+
     return (
         <div className="stat">
             <Container>
                 <h1>疼痛統計</h1>
                 <Navbar expand="lg" className="justify-content-between mt-4">
                     <Form inline="true" onSubmit={handleSearch} className="d-flex w-100 align-items-center" style={{ whiteSpace: 'nowrap' }}>
-                        {/* <FormControl
-                            type="text"
-                            placeholder="搜尋部位"
-                            className="me-3"
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                        />
-                        <DropdownButton 
-                            className="me-5" 
-                            variant="outline-secondary" 
-                            title={bodyParts.find(part => part.value === selectedBodyPart)?.label || "選擇部位"} 
-                            id="dropdown-menu"
-                        >
-                            {filteredBodyParts.map(part => (
-                                <Dropdown.Item 
-                                    key={part.value} 
-                                    onClick={() => setSelectedBodyPart(part.value)}
-                                >
-                                    {part.label}
-                                </Dropdown.Item>
-                            ))}
-                        </DropdownButton> */}
-
                         <div className="d-flex flex-wrap">
                             <Dropdown>
                                 <Dropdown.Toggle variant="outline-secondary" id="dropdown-basic" className="me-5">
@@ -392,7 +381,22 @@ const Stat = ({ url }) => {
                             value={searchDateto}
                             onChange={e => setSearchDateto(e.target.value)}
                         />
-                        <Button variant="outline-success" type="submit">送出</Button>
+                        <Button variant="outline-success" type="submit" className="me-3">搜尋</Button>
+                        {user === 'admin' && (
+                            <>
+                            <Button variant="outline-primary" onClick={handleShow} className='me-2'>
+                                管理
+                            </Button>
+                            <Button 
+                                variant="outline-primary" 
+                                onClick={() => exportToExcel(userhurt[0].user_id)} 
+                                className='me-2'
+                            >
+                                匯出 Excel
+                            </Button>
+                            </>
+                        )
+                        }
                     </Form>
                 </Navbar>
 
@@ -429,7 +433,7 @@ const Stat = ({ url }) => {
                                             beginAtZero: true,
                                             max: 4,
                                             grid: {
-                                                drawOnChartArea: false // 防止网格线绘制在图表区域上
+                                                drawOnChartArea: false 
                                             }
                                         }
                                     }
@@ -440,26 +444,34 @@ const Stat = ({ url }) => {
                     )}
                 </div>
 
-                {/* <Table striped bordered hover className="mt-4">
-                    <thead>
-                        <tr>
-                            <th className="stat-time-column">填表時間</th>
-                            <th className="stat-actions-column">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {userhurt.map(uh => (
-                            <tr key={uh.id}>
-                                <td className="stat-time-column">{uh.fill_time}</td>
-                                <td className="stat-actions-column">
-                                    {user === 'admin' && (
-                                        <Button variant="outline-danger" onClick={() => handleDelete(uh.id)}>刪除</Button>
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table> */}
+                <Modal show={showModal} onHide={handleClose} size="lg">
+                    <Modal.Header closeButton>
+                        <Modal.Title>疼痛資料管理</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Table striped bordered hover className="mt-4">
+                            <thead>
+                                <tr>
+                                    <th className="stat-time-column">填寫時間</th>
+                                    <th className="stat-actions-column">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {userhurt.map(uh => (
+                                    <tr key={uh.id}>
+                                        <td className="stat-time-column">{moment(uh.fill_time).format('YYYY-MM-DD HH:mm')}</td>
+                                        <td className="stat-actions-column">
+                                            {user === 'admin' && (
+                                                <Button variant="outline-danger" onClick={() => handleDelete(uh.id)}>删除</Button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </Modal.Body>
+                </Modal>
+
             </Container>
         </div>
     );

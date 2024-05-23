@@ -26,7 +26,7 @@ const DataFiller = (props: any) => {
                     props.WeekPain[props.currentPart] = Weekvalue
                     props.PainLevel[props.currentPart] = value
                     props.setCurrentPart('')
-                    console.log(props.MonthPain)
+                    // console.log(props.MonthPain)
                 }}
                 onCancel={() => { props.setCurrentPart('') }}
                 mask={false}
