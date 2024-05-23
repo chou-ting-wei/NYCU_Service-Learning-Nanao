@@ -327,7 +327,7 @@ const Admin: React.FC = ({role, url}) => {
                         <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="primary" onClick={handleAddUser}>
+                        <Button variant="outline-primary" onClick={handleAddUser}>
                             送出
                         </Button>
                     </Modal.Footer>
@@ -371,7 +371,7 @@ const Admin: React.FC = ({role, url}) => {
                     <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                 </Modal.Body>
                 <Modal.Footer className="modal-footer">
-                    <Button variant="primary" onClick={() => handleUpdate(editUsername, editUserrole)}>
+                    <Button variant="outline-primary" onClick={() => handleUpdate(editUsername, editUserrole)}>
                         送出
                     </Button>
                 </Modal.Footer>
@@ -464,7 +464,7 @@ const Admin: React.FC = ({role, url}) => {
                     <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                 </Modal.Body>
                 <Modal.Footer className="modal-footer">
-                    <Button variant="primary" onClick={() => handleUpdate2(editUsername2)}>
+                    <Button variant="outline-primary" onClick={() => handleUpdate2(editUsername2)}>
                         送出
                     </Button>
                 </Modal.Footer>
