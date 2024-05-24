@@ -465,7 +465,7 @@ const Stat: React.FC<StatProps> = ({ url }) => {
                                         <td className="stat-time-column">{moment(uh.fill_time).format('YYYY-MM-DD HH:mm')}</td>
                                         <td className="stat-actions-column">
                                             {user === 'admin' && (
-                                                <Button variant="outline-danger" onClick={() => handleDelete(uh.id)}>删除</Button>
+                                                <Button variant="outline-danger" onClick={() => handleDelete(uh.id)}>刪除</Button>
                                             )}
                                         </td>
                                     </tr>
