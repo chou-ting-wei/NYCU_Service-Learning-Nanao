@@ -1,5 +1,6 @@
 import './Profile.css';
 import React, { useState, useEffect } from 'react';
+import Button from 'react-bootstrap/Button';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import withAuthRedirect from './withAuthRedirect';
@@ -36,7 +37,7 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [errMsg, setErrMsg] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('/default_avatar.jpg');
-
+  const [key, setKey] = useState(0);
   const getUserID = async (username: string) => {
     const response = await axios.get(url + `user/find/${username}`, {
       headers: {
@@ -93,7 +94,10 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
       setErrMsg('Error fetching user data.');
     }
   };
-
+  const refreshImg = () => {
+    setKey(prevKey => prevKey + 1); // 更新key，强制重新加载图片
+    console.info(key);
+  }
   const defaultData: UserData = {
     gender: '無',
     birthday: '無',
@@ -113,7 +117,9 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
 
   return (
     <div className="profile">
-      <img src={avatarUrl} alt="Profile Picture" />
+      <div>
+        <img key={key} src={avatarUrl} alt="Profile Picture" />
+      </div>
       <div className="info">
         <div><span className="label">姓名：</span>{users?.name || '無'}</div>
         <div><span className="label">性別：</span>{genderMap[displayData.gender] || '無'}</div>
@@ -125,7 +131,7 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
         <div><span className="label">過去病史：</span>{displayData.medical_History || '無'}</div>
       </div>
       {errMsg && <div className="errmsg">{errMsg}</div>}
-    </div>
+    </div >
   );
 };
 

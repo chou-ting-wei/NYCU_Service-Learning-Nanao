@@ -294,26 +294,28 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
 
     const handleEditAiImg = async (username: string) => {
         const editUserID = await getUserID(username);
-        setAiImgSrc1(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca1-${editUserID}.jpg`);
-        setAiImgSrc2(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca2-${editUserID}.jpg`);
-        setAiImgSrc3(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca3-${editUserID}.jpg`);
+        setAiImgSrc1(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca1-${editUserID}.jpeg`);
+        setAiImgSrc2(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca2-${editUserID}.jpeg`);
+        setAiImgSrc3(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca3-${editUserID}.jpeg`);
         setShowEditAiModal(true);
         setShowEditImgModal(false);
 
     }
+
     const handleAiClick = async (username: string, imgUrl: string) => {
+        message.info('上傳中，請耐心等待');
+        const editUserID = await getUserID(username);
+        console.info(username);
+        console.info(editUserID);
         try {
-            const editUserID = getUserID(username);
-            const response = await fetch(imgUrl);
-            const blob = await response.blob();
-
-            const filename = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
-            const file = new File([blob], filename, { type: 'image/jpeg' });
-
+            const downloadResponse = await axios.get(imgUrl, {
+                responseType: 'blob',
+            });
             const formData = new FormData();
-            formData.append('file', file);
+
+            formData.append('file', downloadResponse.data, 'example.jpeg');
             try {
-                const response = await axios.post(`https://elk-on-namely.ngrok-free.app/upload?user_id=${editUserID.toString()}`,
+                const response = await axios.post(`https://elk-on-namely.ngrok-free.app/upload?user_id=${editUserID}`,
                     formData
                     , {
                         headers: {
@@ -595,6 +597,9 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                     <Button variant="outline-secondary" onClick={() => handleEditAiImg(editNameImg)} >使用AI頭貼 </Button>
                 </Modal>
                 <Modal show={showUploadImgModal} onHide={() => setShowUploadImgModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>上傳圖片</Modal.Title>
+                    </Modal.Header>
                     <Modal.Body className="modal-body">
                         <Upload {...uploadProps}>
                             <AntButton icon={<UploadOutlined />}>選擇檔案</AntButton>
@@ -612,16 +617,23 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                     </Modal.Body>
                 </Modal>
                 <Modal show={showEditAiModal} onHide={() => setShowEditAiModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>點選一張圖片作為頭像</Modal.Title>
+                    </Modal.Header>
                     <div>
-                        {/* <button onClick={handleAiClick(editNameImg, aiImgSrc1)} style={{ cursor: 'pointer' }}> */}
-                        <img src={aiImgSrc1} style={{ maxWidth: '100%' }} />
-                        {/* </button> */}
+                        <button onClick={() => handleAiClick(editNameImg, aiImgSrc1)} style={{ cursor: 'pointer' }}>
+                            <img src={aiImgSrc1} style={{ maxWidth: '100%' }} />
+                        </button>
                     </div>
                     <div>
-                        <img src={aiImgSrc2} style={{ maxWidth: '100%' }} />
+                        <button onClick={() => handleAiClick(editNameImg, aiImgSrc2)} style={{ cursor: 'pointer' }}>
+                            <img src={aiImgSrc2} style={{ maxWidth: '100%' }} />
+                        </button>
                     </div>
                     <div>
-                        <img src={aiImgSrc3} style={{ maxWidth: '100%' }} />
+                        <button onClick={() => handleAiClick(editNameImg, aiImgSrc3)} style={{ cursor: 'pointer' }}>
+                            <img src={aiImgSrc3} style={{ maxWidth: '100%' }} />
+                        </button>
                     </div>
                 </Modal>
             </Container>
