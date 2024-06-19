@@ -4,6 +4,9 @@ import { Container, Table, Button, Navbar, Nav, Modal, Form } from 'react-bootst
 import { useNavigate } from 'react-router-dom';
 import './Admin.css';
 import withAuthRedirect from './withAuthRedirect';
+import { UploadOutlined } from '@ant-design/icons';
+import { Button as AntButton, message, Upload, Flex } from 'antd';
+import type { UploadProps, UploadFile } from 'antd';
 
 interface User {
     name: string;
@@ -17,13 +20,15 @@ interface Userdata {
     age: number;
     medical_History: string;
     address: string;
-    email: string;  
+    email: string;
     phone: string;
 }
 
 interface AdminProps {
     url: string;
 }
+
+
 
 const Admin: React.FC<AdminProps> = ({ url }) => {
     const [users, setUsers] = useState<User[]>([]);
@@ -48,8 +53,17 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
     const [editUseremail2, setEditUseremail2] = useState('');
     const [editUseraddr2, setEditUseraddr2] = useState('');
     const [editUsermhis2, setEditUsermhis2] = useState('');
-
     const [errMsg, setErrMsg] = useState('');
+
+    const [showEditImgModal, setShowEditImgModal] = useState(false);
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [uploading, setUploading] = useState(false);
+    const [editNameImg, setEditNameImg] = useState('');
+    const [showUploadImgModal, setShowUploadImgModal] = useState(false);
+    const [showEditAiModal, setShowEditAiModal] = useState(false);
+    const [aiImgSrc1, setAiImgSrc1] = useState<string>();
+    const [aiImgSrc2, setAiImgSrc2] = useState<string>();
+    const [aiImgSrc3, setAiImgSrc3] = useState<string>();
 
     useEffect(() => {
         fetchUsers();
@@ -96,7 +110,7 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                 },
                 withCredentials: true
             });
-            fetchUsers(); 
+            fetchUsers();
         } catch (error) {
             setErrMsg('Error deleting user.');
         }
@@ -114,8 +128,8 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
         try {
             const updatedUser = {
                 name: editName,
-                username: editUsername, 
-                password: editPassword, 
+                username: editUsername,
+                password: editPassword,
                 role: role
             };
             await axios.patch(`${url}user/${editUserId}`, updatedUser, {
@@ -159,11 +173,46 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
 
         setShowEditModal2(true);
     };
+    const handleEditImg = async (user: User) => {
+        const editUserIdImg = await getUserID(user.username);
+        setEditNameImg(user.name);
+        setShowEditImgModal(true);
+    };
+
+    const handleUploadImg = async (username: string) => {
+        const formData = new FormData();
+        const editUserID = await getUserID(username);
+        try {
+            if (fileList.length > 0) {
+                const file = fileList[0] as unknown as File;
+                formData.append('file', file); // 添加JPEG文件
+            }
+            setUploading(true);
+            const response = await axios.post(`https://elk-on-namely.ngrok-free.app/upload?user_id=${editUserID.toString()}`,
+                formData
+                , {
+                    headers: {
+                        'accept': 'application/json',
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    withCredentials: true
+                });
+            if (response.status == 200) {
+                message.success('成功上傳');
+            } else {
+                message.error('上傳失敗');
+            }
+        } catch (error) {
+            message.error('上傳失敗');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const handleUpdate2 = async (username: string) => {
         const editUserId = await getUserID(username);
         try {
-            const updatedUser = { 
+            const updatedUser = {
                 gender: editGender2,
                 birthday: editUserbirth2,
                 age: editUserage2,
@@ -196,20 +245,20 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
 
     const handleAddUser = async () => {
         try {
-            const newUser = { 
+            const newUser = {
                 name: newName,
-                username: newUsername, 
-                password: newPassword, 
+                username: newUsername,
+                password: newPassword,
                 role: "USER",
                 userDetail: {
                     create: {
-                      gender: null,
-                      birthday: "",
-                      age: 0,
-                      medical_History: "",
-                      address: "",
-                      email: "",
-                      phone: ""
+                        gender: null,
+                        birthday: "",
+                        age: 0,
+                        medical_History: "",
+                        address: "",
+                        email: "",
+                        phone: ""
                     }
                 }
             };
@@ -219,7 +268,7 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                 },
                 withCredentials: true
             });
-            fetchUsers(); 
+            fetchUsers();
             setShowModal(false);
             setNewName('');
             setNewUsername('');
@@ -238,9 +287,84 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
         });
         return response.data;
     };
+    const handleEditUploadImg = async () => {
+        setShowEditImgModal(false);
+        setShowUploadImgModal(true);
+    }
+
+    const handleEditAiImg = async (username: string) => {
+        const editUserID = await getUserID(username);
+        setAiImgSrc1(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca1-${editUserID}.jpg`);
+        setAiImgSrc2(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca2-${editUserID}.jpg`);
+        setAiImgSrc3(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca3-${editUserID}.jpg`);
+        setShowEditAiModal(true);
+        setShowEditImgModal(false);
+
+    }
+    const handleAiClick = async (username: string, imgUrl: string) => {
+        try {
+            const editUserID = getUserID(username);
+            const response = await fetch(imgUrl);
+            const blob = await response.blob();
+
+            const filename = imgUrl.substring(imgUrl.lastIndexOf('/') + 1);
+            const file = new File([blob], filename, { type: 'image/jpeg' });
+
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const response = await axios.post(`https://elk-on-namely.ngrok-free.app/upload?user_id=${editUserID.toString()}`,
+                    formData
+                    , {
+                        headers: {
+                            'accept': 'application/json',
+                            'Content-Type': 'multipart/form-data'
+                        },
+                        withCredentials: true
+                    });
+                if (response.status == 200) {
+                    message.success('成功上傳');
+                } else {
+                    message.error('上傳失敗');
+                }
+            } catch (error) {
+                message.error('上傳失敗');
+            } finally {
+                setUploading(false);
+            }
+        } catch (error) {
+            console.error('Error uploading JPEG image:', error);
+        }
+    }
+
+    const uploadProps: UploadProps = {
+        name: 'file',
+        accept: '.jpeg,.jpg',
+        onRemove: (file) => {
+            const index = fileList.indexOf(file);
+            const newFileList = fileList.slice();
+            newFileList.splice(index, 1);
+            setFileList(newFileList);
+        },
+        beforeUpload: (file) => {
+            const isJpgOrJpeg = file.type === 'image/jpeg' || file.type === 'image/jpg';
+            if (!isJpgOrJpeg) {
+                message.error('You can only upload JPEG file!');
+                return false;
+            }
+            const isLt2M = file.size / 1024 / 1024 < 2;
+            if (!isLt2M) {
+                message.error('Image must smaller than 2MB!');
+                return false;
+            }
+            setFileList([file]); // 確保只保留最新的一個文件
+            return false;
+        },
+        fileList,
+    };
 
     return (
-        <div className="admin">   
+        <div className="admin">
             <Container>
                 <h1>管理介面</h1>
                 <Navbar expand="lg">
@@ -277,6 +401,8 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                                     <Button variant="outline-secondary" onClick={() => handleEditUser(user)}>編輯帳密</Button>
                                     &nbsp;
                                     <Button variant="outline-secondary" onClick={() => handleEditUser2(user)}>編輯資料</Button>
+                                    &nbsp;
+                                    <Button variant="outline-secondary" onClick={() => handleEditImg(user)}>個人頭像</Button>
                                     &nbsp;
                                     {user.role !== 'ADMIN' && (
                                         <Button variant="outline-danger" onClick={async () => handleDelete(await getUserID(user.username))}>刪除</Button>
@@ -357,7 +483,7 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                                     value={editPassword}
                                     onChange={(e) => setEditPassword(e.target.value)}
                                     required
-                                /> 
+                                />
                             </Form.Group>
                         </Form>
                         <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
@@ -460,6 +586,43 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                             送出
                         </Button>
                     </Modal.Footer>
+                </Modal>
+                <Modal show={showEditImgModal} onHide={() => setShowEditImgModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>個人頭像</Modal.Title>
+                    </Modal.Header>
+                    <Button variant="outline-secondary" onClick={() => handleEditUploadImg()} >上傳圖片 </Button>
+                    <Button variant="outline-secondary" onClick={() => handleEditAiImg(editNameImg)} >使用AI頭貼 </Button>
+                </Modal>
+                <Modal show={showUploadImgModal} onHide={() => setShowUploadImgModal(false)}>
+                    <Modal.Body className="modal-body">
+                        <Upload {...uploadProps}>
+                            <AntButton icon={<UploadOutlined />}>選擇檔案</AntButton>
+                        </Upload>
+                        <AntButton
+                            type="primary"
+                            onClick={() => handleUploadImg(editNameImg)}
+                            disabled={fileList.length === 0}
+                            loading={uploading}
+                            style={{ marginTop: 16 }}
+                        >
+                            {uploading ? '正在上傳' : '開始上傳'}
+                        </AntButton>
+                        <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
+                    </Modal.Body>
+                </Modal>
+                <Modal show={showEditAiModal} onHide={() => setShowEditAiModal(false)}>
+                    <div>
+                        {/* <button onClick={handleAiClick(editNameImg, aiImgSrc1)} style={{ cursor: 'pointer' }}> */}
+                        <img src={aiImgSrc1} style={{ maxWidth: '100%' }} />
+                        {/* </button> */}
+                    </div>
+                    <div>
+                        <img src={aiImgSrc2} style={{ maxWidth: '100%' }} />
+                    </div>
+                    <div>
+                        <img src={aiImgSrc3} style={{ maxWidth: '100%' }} />
+                    </div>
                 </Modal>
             </Container>
         </div>

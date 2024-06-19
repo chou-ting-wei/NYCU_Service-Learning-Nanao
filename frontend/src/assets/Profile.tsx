@@ -35,6 +35,7 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
   const [userId, setUserId] = useState<string | null>(id || null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [errMsg, setErrMsg] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('/default_avatar.jpg');
 
   const getUserID = async (username: string) => {
     const response = await axios.get(url + `user/find/${username}`, {
@@ -48,6 +49,7 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
 
   useEffect(() => {
     const fetchUserId = async () => {
+
       if (!userId && user) {
         const fetchedId = await getUserID(user);
         if (fetchedId) {
@@ -58,8 +60,18 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
         fetchUserData(userId);
       }
     };
+
     fetchUserId();
+
   }, [userId, user]);
+
+
+
+  useEffect(() => {
+    if (userId) {
+      setAvatarUrl(`https://elk-on-namely.ngrok-free.app/avatar_original/original-${userId}.jpeg`);
+    }
+  }, [userId]);
 
   const fetchUserData = async (id: string) => {
     try {
@@ -101,7 +113,7 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
 
   return (
     <div className="profile">
-      <img src="/default_avatar.jpg" alt="Profile Picture" />
+      <img src={avatarUrl} alt="Profile Picture" />
       <div className="info">
         <div><span className="label">姓名：</span>{users?.name || '無'}</div>
         <div><span className="label">性別：</span>{genderMap[displayData.gender] || '無'}</div>

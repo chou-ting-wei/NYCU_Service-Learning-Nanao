@@ -37,6 +37,9 @@ const DataFiller: React.FC<DataFillerProps> = (props) => {
           props.WeekPain[props.currentPart] = Weekvalue;
           props.PainLevel[props.currentPart] = value;
           props.setCurrentPart('');
+          setMonthValue(false);
+          setWeekValue(false);
+          setValue(0);
         }}
         onCancel={() => { props.setCurrentPart(''); }}
         mask={false}

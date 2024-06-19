@@ -8,6 +8,7 @@ import { Bar, Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js'; 
 import 'chart.js/auto';
 import moment from 'moment';
+import 'moment-timezone';
 import { Userhurt, Usertime } from './ts/types';
 import { bodyParts } from './ts/constants';
 import withAuthRedirect from './withAuthRedirect';
@@ -189,10 +190,12 @@ const Stat: React.FC<StatProps> = ({ url }) => {
         try {
             const params: any = {};
             if (searchDatefrom) {
-                params.start = moment(searchDatefrom).toISOString();
+                params.start = moment.tz(searchDatefrom, 'Asia/Taipei').startOf('day').toISOString();
+                console.log(params.start);
             }
             if (searchDateto) {
-                params.end = moment(searchDateto).toISOString();
+                params.end = moment.tz(searchDateto, 'Asia/Taipei').endOf('day').toISOString();
+                console.log(params.end);
             }
             
             const response = await axios.get(`${url}hurtform/${id}`, {
@@ -219,10 +222,10 @@ const Stat: React.FC<StatProps> = ({ url }) => {
         try {
             const params: any = {};
             if (searchDatefrom) {
-                params.start = moment(searchDatefrom).toISOString();
+                params.start = moment.tz(searchDatefrom, 'Asia/Taipei').startOf('day').toISOString();
             }
             if (searchDateto) {
-                params.end = moment(searchDateto).toISOString();
+                params.end = moment.tz(searchDateto, 'Asia/Taipei').endOf('day').toISOString();
             }
 
             const response = await axios.get(`${url}weekform/${id}`, {
@@ -249,10 +252,10 @@ const Stat: React.FC<StatProps> = ({ url }) => {
         try {
             const params: any = {};
             if (searchDatefrom) {
-                params.start = moment(searchDatefrom).toISOString();
+                params.start = moment.tz(searchDatefrom, 'Asia/Taipei').startOf('day').toISOString();
             }
             if (searchDateto) {
-                params.end = moment(searchDateto).toISOString();
+                params.end = moment.tz(searchDateto, 'Asia/Taipei').endOf('day').toISOString();
             }
 
             const response = await axios.get(`${url}yearform/${id}`, {
@@ -431,6 +434,7 @@ const Stat: React.FC<StatProps> = ({ url }) => {
                                             type: 'linear',
                                             position: 'right',
                                             beginAtZero: true,
+                                            display: false, 
                                             max: 4,
                                             grid: {
                                                 drawOnChartArea: false 
@@ -461,7 +465,7 @@ const Stat: React.FC<StatProps> = ({ url }) => {
                                         <td className="stat-time-column">{moment(uh.fill_time).format('YYYY-MM-DD HH:mm')}</td>
                                         <td className="stat-actions-column">
                                             {user === 'admin' && (
-                                                <Button variant="outline-danger" onClick={() => handleDelete(uh.id)}>删除</Button>
+                                                <Button variant="outline-danger" onClick={() => handleDelete(uh.id)}>刪除</Button>
                                             )}
                                         </td>
                                     </tr>
