@@ -17,13 +17,13 @@
 
 ## 安裝步驟
 
-假設您已安裝 Docker 並登入後，請按照以下步驟進行：
+假設您已安裝 Docker 並登入後，請按照以下步驟進行：  
 
-1. **創建專案目錄**：
+1. **創建專案目錄**：  
     建立一個要存放專案的資料夾，並切換到該目錄。
 
-2. **創建 `docker-compose.yml` 文件**：
-    在專案目錄中創建一個名為 `docker-compose.yml` 的文件，並填入以下內容：
+2. **創建 `docker-compose.yml` 文件**：  
+    在專案目錄中創建一個名為 `docker-compose.yml` 的文件，並填入以下內容：  
     ```yaml=
     # docker-compose.yml
     services:
@@ -72,8 +72,8 @@
     volumes:
       db-data:
     ```
-3. **創建 `init-db.sql` 文件**：
-    在專案目錄中創建一個名為 `init-db.sql` 的文件，並填入以下內容：
+3. **創建 `init-db.sql` 文件**：  
+    在專案目錄中創建一個名為 `init-db.sql` 的文件，並填入以下內容：  
     ```sql=
     -- init-db.sql
     CREATE DATABASE IF NOT EXISTS nanao_db;
@@ -82,31 +82,30 @@
     GRANT ALL PRIVILEGES ON *.* TO 'nanao_user'@'%';
     FLUSH PRIVILEGES;
     ```
-4. **初始化環境**：
-    在專案目錄中打開終端機，並輸入以下指令以初始化環境。
+4. **初始化環境**：  
+    在專案目錄中打開終端機，並輸入以下指令以初始化環境。  
     ```bash=
     docker login
     docker-compose pull
     docker-compose up -d
     ```
-5. **驗證服務是否正在運行**：
-    使用此命令檢查服務的狀態。
+5. **驗證服務是否正在運行**：  
+    使用此命令檢查服務的狀態。  
     ```bash=
     docker-compose ps
     ```
-    若顯示以下內容即為正常運行。
+    若顯示以下內容即為正常運行。  
     ```bash=
     NAME                                     IMAGE                                          COMMAND                  SERVICE    CREATED              STATUS                        PORTS
     nycu_service-learning-nanao-backend-1    userwei/nycu_service-learning-nanao:backend    "docker-entrypoint.s…"   backend    About a minute ago   Up About a minute             0.0.0.0:3000->3000/tcp
     nycu_service-learning-nanao-db-1         mysql:8.0                                      "docker-entrypoint.s…"   db         About a minute ago   Up About a minute (healthy)   33060/tcp, 0.0.0.0:3307->3306/tcp
     nycu_service-learning-nanao-frontend-1   userwei/nycu_service-learning-nanao:frontend   "/docker-entrypoint.…"   frontend   About a minute ago   Up About a minute             0.0.0.0:5173->80/tcp
     ```
-6. **連接疼痛互動系統**：
+6. **連接疼痛互動系統**：  
     安裝完成後可以通過瀏覽器訪問 http://localhost:5173 來連接系統。
 
 ## 附錄
-1. 安裝後電腦若重新開機，需重新在存放專案的資料夾中重新打開終端機執行以下指令即可讓系統繼續運行。
-
+1. 安裝後電腦若重新開機，需重新在存放專案的資料夾中重新打開終端機執行以下指令即可讓系統繼續運行。  
     ```bash=
     docker-compose up -d
     ```
