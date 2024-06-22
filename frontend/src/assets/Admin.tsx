@@ -175,7 +175,7 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
     };
     const handleEditImg = async (user: User) => {
         const editUserIdImg = await getUserID(user.username);
-        setEditNameImg(user.name);
+        setEditNameImg(user.username);
         setShowEditImgModal(true);
     };
 
@@ -185,7 +185,7 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
         try {
             if (fileList.length > 0) {
                 const file = fileList[0] as unknown as File;
-                formData.append('file', file); // 添加JPEG文件
+                formData.append('file', file); 
             }
             setUploading(true);
             const response = await axios.post(`https://elk-on-namely.ngrok-free.app/upload?user_id=${editUserID.toString()}`,
@@ -258,7 +258,8 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                         medical_History: "",
                         address: "",
                         email: "",
-                        phone: ""
+                        phone: "",
+                        headshot: "0"
                     }
                 }
             };
@@ -294,54 +295,38 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
 
     const handleEditAiImg = async (username: string) => {
         const editUserID = await getUserID(username);
-        setAiImgSrc1(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca1-${editUserID}.jpeg`);
-        setAiImgSrc2(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca2-${editUserID}.jpeg`);
-        setAiImgSrc3(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca3-${editUserID}.jpeg`);
+        setAiImgSrc1(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca1-${editUserID}.jpg`);
+        setAiImgSrc2(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca2-${editUserID}.jpg`);
+        setAiImgSrc3(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca3-${editUserID}.jpg`);
         setShowEditAiModal(true);
         setShowEditImgModal(false);
 
     }
 
-    const handleAiClick = async (username: string, imgUrl: string) => {
-        message.info('上傳中，請耐心等待');
+    const handleAiClick = async (username: string, imgNum: string) => {
+        message.info('設定中，請耐心等待');
         const editUserID = await getUserID(username);
-        console.info(username);
-        console.info(editUserID);
+        // console.info(username);
+        // console.info(editUserID);
         try {
-            const downloadResponse = await axios.get(imgUrl, {
-                responseType: 'blob',
+            const updatedUser = {
+                headshot: imgNum
+            };
+            await axios.patch(`${url}user-detail/${editUserID}`, updatedUser, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
             });
-            const formData = new FormData();
-
-            formData.append('file', downloadResponse.data, 'example.jpeg');
-            try {
-                const response = await axios.post(`https://elk-on-namely.ngrok-free.app/upload?user_id=${editUserID}`,
-                    formData
-                    , {
-                        headers: {
-                            'accept': 'application/json',
-                            'Content-Type': 'multipart/form-data'
-                        },
-                        withCredentials: true
-                    });
-                if (response.status == 200) {
-                    message.success('成功上傳');
-                } else {
-                    message.error('上傳失敗');
-                }
-            } catch (error) {
-                message.error('上傳失敗');
-            } finally {
-                setUploading(false);
-            }
         } catch (error) {
-            console.error('Error uploading JPEG image:', error);
+            setErrMsg('Error fetching users.');
+            return null;
         }
     }
 
     const uploadProps: UploadProps = {
         name: 'file',
-        accept: '.jpeg,.jpg',
+        accept: '.jpeg,.jpg,.png',
         onRemove: (file) => {
             const index = fileList.indexOf(file);
             const newFileList = fileList.slice();
@@ -349,9 +334,9 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
             setFileList(newFileList);
         },
         beforeUpload: (file) => {
-            const isJpgOrJpeg = file.type === 'image/jpeg' || file.type === 'image/jpg';
+            const isJpgOrJpeg = file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png';
             if (!isJpgOrJpeg) {
-                message.error('You can only upload JPEG file!');
+                message.error('You can only upload JPEG/PNG file!');
                 return false;
             }
             const isLt2M = file.size / 1024 / 1024 < 2;
@@ -359,7 +344,7 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                 message.error('Image must smaller than 2MB!');
                 return false;
             }
-            setFileList([file]); // 確保只保留最新的一個文件
+            setFileList([file]);
             return false;
         },
         fileList,
@@ -621,17 +606,17 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                         <Modal.Title>點選一張圖片作為頭像</Modal.Title>
                     </Modal.Header>
                     <div>
-                        <button onClick={() => handleAiClick(editNameImg, aiImgSrc1)} style={{ cursor: 'pointer' }}>
+                        <button onClick={() => handleAiClick(editNameImg, "1")} style={{ cursor: 'pointer' }}>
                             <img src={aiImgSrc1} style={{ maxWidth: '100%' }} />
                         </button>
                     </div>
                     <div>
-                        <button onClick={() => handleAiClick(editNameImg, aiImgSrc2)} style={{ cursor: 'pointer' }}>
+                        <button onClick={() => handleAiClick(editNameImg, "2")} style={{ cursor: 'pointer' }}>
                             <img src={aiImgSrc2} style={{ maxWidth: '100%' }} />
                         </button>
                     </div>
                     <div>
-                        <button onClick={() => handleAiClick(editNameImg, aiImgSrc3)} style={{ cursor: 'pointer' }}>
+                        <button onClick={() => handleAiClick(editNameImg, "3")} style={{ cursor: 'pointer' }}>
                             <img src={aiImgSrc3} style={{ maxWidth: '100%' }} />
                         </button>
                     </div>

@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import withAuthRedirect from './withAuthRedirect';
+import { isNullOrUndef } from 'chart.js/helpers';
 
 interface User {
   name: string;
@@ -18,6 +19,7 @@ interface UserData {
   address: string;
   email: string;
   phone: string;
+  headshot: string;
 }
 
 const useQuery = () => {
@@ -69,10 +71,10 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
 
 
   useEffect(() => {
-    if (userId) {
-      setAvatarUrl(`https://elk-on-namely.ngrok-free.app/avatar_original/original-${userId}.jpeg`);
+    if(userData && userData.headshot !== "0"){
+      setAvatarUrl(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca${userData.headshot}-${userId}.jpg`);
     }
-  }, [userId]);
+  }, [userData, userId]);
 
   const fetchUserData = async (id: string) => {
     try {
@@ -91,13 +93,11 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
       });
       setUserData(response2.data);
     } catch (error) {
+      console.log(error)
       setErrMsg('Error fetching user data.');
     }
   };
-  const refreshImg = () => {
-    setKey(prevKey => prevKey + 1); // 更新key，强制重新加载图片
-    console.info(key);
-  }
+
   const defaultData: UserData = {
     gender: '無',
     birthday: '無',
@@ -106,6 +106,7 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
     address: '無',
     email: '無',
     phone: '無',
+    headshot: '0'
   };
 
   const displayData = userData || defaultData;
@@ -118,7 +119,7 @@ const Profile: React.FC<ProfileProps> = ({ user, url }) => {
   return (
     <div className="profile">
       <div>
-        <img key={key} src={avatarUrl} alt="Profile Picture" />
+        <img key={key} src={avatarUrl === '/default_avatar.jpg' ? '/default_avatar.jpg' :   `${avatarUrl}?${new Date().getTime()}`} alt="Profile Picture" />
       </div>
       <div className="info">
         <div><span className="label">姓名：</span>{users?.name || '無'}</div>
