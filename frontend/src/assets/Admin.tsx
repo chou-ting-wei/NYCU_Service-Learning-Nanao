@@ -22,6 +22,7 @@ interface Userdata {
     address: string;
     email: string;
     phone: string;
+    headshot: string;
 }
 
 interface AdminProps {
@@ -53,6 +54,7 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
     const [editUseremail2, setEditUseremail2] = useState('');
     const [editUseraddr2, setEditUseraddr2] = useState('');
     const [editUsermhis2, setEditUsermhis2] = useState('');
+    const [editUserhs2, setEditUserhs2] = useState('0');
     const [errMsg, setErrMsg] = useState('');
 
     const [showEditImgModal, setShowEditImgModal] = useState(false);
@@ -161,6 +163,8 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
             setEditUseremail2(userdata.email);
             setEditUseraddr2(userdata.address);
             setEditUsermhis2(userdata.medical_History);
+            setEditUserhs2(userdata.headshot)
+            
         } else {
             setEditGender2('');
             setEditUserbirth2('');
@@ -169,12 +173,12 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
             setEditUseremail2('');
             setEditUseraddr2('');
             setEditUsermhis2('');
+            setEditUserhs2('0');
         }
 
         setShowEditModal2(true);
     };
     const handleEditImg = async (user: User) => {
-        const editUserIdImg = await getUserID(user.username);
         setEditNameImg(user.username);
         setShowEditImgModal(true);
     };
@@ -198,7 +202,16 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                     withCredentials: true
                 });
             if (response.status == 200) {
-                message.success('成功上傳');
+                message.success('上傳成功');
+                const updatedUser = {
+                    headshot: '4'
+                };
+                await axios.patch(`${url}user-detail/${editUserID}`, updatedUser, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true
+                });
             } else {
                 message.error('上傳失敗');
             }
@@ -219,7 +232,8 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                 medical_History: editUsermhis2,
                 address: editUseraddr2,
                 email: editUseremail2,
-                phone: editUserphone2
+                phone: editUserphone2,
+                headshot: editUserhs2
             };
             await axios.patch(`${url}user-detail/${editUserId}`, updatedUser, {
                 headers: {
@@ -238,6 +252,7 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
             setEditUseremail2('');
             setEditUseraddr2('');
             setEditUsermhis2('');
+            setEditUserhs2('0');
         } catch (error) {
             setErrMsg('Error updating user.');
         }
@@ -298,16 +313,14 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
         setAiImgSrc1(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca1-${editUserID}.jpg`);
         setAiImgSrc2(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca2-${editUserID}.jpg`);
         setAiImgSrc3(`https://elk-on-namely.ngrok-free.app/avatar_styled/styled-ca3-${editUserID}.jpg`);
+        
         setShowEditAiModal(true);
         setShowEditImgModal(false);
-
     }
 
     const handleAiClick = async (username: string, imgNum: string) => {
-        message.info('設定中，請耐心等待');
+        message.info('正在設定用戶頭像，請耐心等待');  
         const editUserID = await getUserID(username);
-        // console.info(username);
-        // console.info(editUserID);
         try {
             const updatedUser = {
                 headshot: imgNum
@@ -318,11 +331,16 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                 },
                 withCredentials: true
             });
+            setTimeout(() => {
+                message.success('用戶頭像更新成功');
+            }, 3000);
         } catch (error) {
-            setErrMsg('Error fetching users.');
+            console.error('Failed to update user avatar:', error);  
+            message.error('無法更新用戶頭像，請檢查網絡連接並重試');  
+            setErrMsg('無法更新用戶頭像，請檢查網絡連接並重試');  
             return null;
         }
-    }
+    }    
 
     const uploadProps: UploadProps = {
         name: 'file',
@@ -341,7 +359,7 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
             }
             const isLt2M = file.size / 1024 / 1024 < 2;
             if (!isLt2M) {
-                message.error('Image must smaller than 2MB!');
+                message.error('Image must be smaller than 2MB!');
                 return false;
             }
             setFileList([file]);
@@ -574,13 +592,17 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
-                <Modal show={showEditImgModal} onHide={() => setShowEditImgModal(false)}>
+
+                <Modal show={showEditImgModal} onHide={() => setShowEditImgModal(false)} className="edit-avatar-modal">
                     <Modal.Header closeButton>
                         <Modal.Title>個人頭像</Modal.Title>
                     </Modal.Header>
-                    <Button variant="outline-secondary" onClick={() => handleEditUploadImg()} >上傳圖片 </Button>
-                    <Button variant="outline-secondary" onClick={() => handleEditAiImg(editNameImg)} >使用AI頭貼 </Button>
+                    <Modal.Body>
+                        <Button variant="outline-secondary" style={{ width: '80%' }} onClick={() => handleEditUploadImg()}>上傳圖片</Button>
+                        <Button variant="outline-secondary" style={{ width: '80%' }} onClick={() => handleEditAiImg(editNameImg)}>使用AI頭貼</Button>
+                    </Modal.Body>
                 </Modal>
+
                 <Modal show={showUploadImgModal} onHide={() => setShowUploadImgModal(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>上傳圖片</Modal.Title>
@@ -601,24 +623,32 @@ const Admin: React.FC<AdminProps> = ({ url }) => {
                         <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</div>
                     </Modal.Body>
                 </Modal>
-                <Modal show={showEditAiModal} onHide={() => setShowEditAiModal(false)}>
+
+                <Modal show={showEditAiModal} onHide={() => setShowEditAiModal(false)} className='ai-modal'>
                     <Modal.Header closeButton>
-                        <Modal.Title>點選一張圖片作為頭像</Modal.Title>
+                        <Modal.Title>選擇一張圖片作為頭像</Modal.Title>
                     </Modal.Header>
-                    <div>
-                        <button onClick={() => handleAiClick(editNameImg, "1")} style={{ cursor: 'pointer' }}>
-                            <img src={aiImgSrc1} style={{ maxWidth: '100%' }} />
-                        </button>
-                    </div>
-                    <div>
-                        <button onClick={() => handleAiClick(editNameImg, "2")} style={{ cursor: 'pointer' }}>
-                            <img src={aiImgSrc2} style={{ maxWidth: '100%' }} />
-                        </button>
-                    </div>
-                    <div>
-                        <button onClick={() => handleAiClick(editNameImg, "3")} style={{ cursor: 'pointer' }}>
-                            <img src={aiImgSrc3} style={{ maxWidth: '100%' }} />
-                        </button>
+                    <Modal.Body>
+                        <div>
+                            <button onClick={() => handleAiClick(editNameImg, "1")} style={{ cursor: 'pointer' }}>
+                                <img src={aiImgSrc1} style={{ maxWidth: '100%' }} />
+                            </button>
+                        </div>
+                        <div>
+                            <button onClick={() => handleAiClick(editNameImg, "2")} style={{ cursor: 'pointer' }}>
+                                <img src={aiImgSrc2} style={{ maxWidth: '100%' }} />
+                            </button>
+                        </div>
+                        <div>
+                            <button onClick={() => handleAiClick(editNameImg, "3")} style={{ cursor: 'pointer' }}>
+                                <img src={aiImgSrc3} style={{ maxWidth: '100%' }} />
+                            </button>
+                        </div>
+                    </Modal.Body>
+                    <div className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">
+                        <Modal.Footer>
+                            {errMsg}
+                        </Modal.Footer>
                     </div>
                 </Modal>
             </Container>
